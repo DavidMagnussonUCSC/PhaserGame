@@ -1,206 +1,261 @@
-//New Phaser game instance
-var game = new Phaser.Game(800, 1000, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+//code created by Alain Kassarjian
+var game = new Phaser.Game(2000, 1600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
-//Gathering necessary assets to create the game
 function preload() 
 {
-
-	//The images for the background, the floor, the stars, and the playable character
-	//are put into the game
-    game.load.image('sky', 'assets/sky.png');
-    game.load.image('ground', 'assets/platform.png');
-    game.load.image('star', 'assets/star.png');
-    game.load.image('diamond', 'assets/diamond.png');
-    game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
-    game.load.spritesheet('baddie', 'assets/baddie.png', 32, 32);
-
+	//image assets
+	game.load.image('box', 'assets/Box.png');
+	game.load.image('player', 'assets/Player.png');
+	game.load.image('plant', 'assets/Plant.png');
+	game.load.image('lightMode', 'assets/Player_LightMode.png');
+	game.load.image('platform', 'assets/platform.png'); //Borrowed from first phaser game, replace post first prototype
 }
 
-//Memory locations to categorize and store objects for the game
+//global variables
+
+//an array that holds all the plant groups
+var plants = [];
+
+//this is used in various functions to temporarily
+//store a plant
+var plant;
+
+//the main player object
 var player;
+
+//variable to store and describe arrow key input information
+var input;
+
+//boolean for if light mode is on or off
+var isLightMode = false;
+
+//variable to store and describe spacebar input information
+var spaceKey;
+
+//variable to store and describe mouse input information
+var mouse;
+
+//variable for group
 var platforms;
-var cursors;
-var baddie;
 
-var stars;
-var diamond;
-var score = 0;
-var scoreText;
+//the player needed a group object to belong to
+//so that the getObjectsUnderPointer function
+//could process it. var player should be the only
+//object in this group
+var players;
 
-//Everything is put into place in the game in preparation for play
-function create() {
-
-    //Adds a preset physics system to the game
-    game.physics.startSystem(Phaser.Physics.ARCADE);
-
-    //Makes an instance of the sky image in the game
-    game.add.sprite(0, 0, 'sky');
-
-    //Uses group functionality to apply similar properties to all platforms
-    platforms = game.add.group();
-
-    //Adds physics to the platforms
-    platforms.enableBody = true;
-
-    //Creates a ground object
-    var ground = platforms.create(0, game.world.height - 64, 'ground');
-
-    //Adjusts the size of the sprite to fit the game window
-    ground.scale.setTo(2, 2);
-
-    //Prevents the player object from moving the ground object
-    ground.body.immovable = true;
-
-    var ledge = platforms.create(600, 600, 'ground');
-    ledge.body.immovable = true;
-
-    ledge = platforms.create(-200, 500, 'ground');
-    ledge.body.immovable = true;
-
-    ledge = platforms.create(-100, 700, 'ground');
-    ledge.body.immovable = true;
-
-    ledge = platforms.create(500, 800, 'ground');
-    ledge.body.immovable = true;
-
-    //A playable character is created and added to the game
-    player = game.add.sprite(32, game.world.height - 150, 'dude');
-
-    //Adds physics to the player
-    game.physics.arcade.enable(player);
-
-    //how much upward momentum is added upon bouncing
-    player.body.bounce.y = 0.2;
-
-    //how fast the player will fall from the air
-    player.body.gravity.y = 300;
-
-    //Treat the edges of the game windows as walls
-    player.body.collideWorldBounds = true;
-
-    //Variable to store information on the enemies
-    baddie = game.add.group();
-    baddie.enableBody = true;
-
-    //Character animations
-    player.animations.add('left', [0, 1, 2, 3], 10, true);
-    player.animations.add('right', [5, 6, 7, 8], 10, true);
-
-    stars = game.add.group();
-
-    stars.enableBody = true;
-
-    //Creates 12 identical instances of the star object 
-    //and adds them to the group
-    for (var i = 0; i < 12; i++)
-    {
-        var star = stars.create(i * 70, 0, 'star');
-
-        star.body.gravity.y = 300;
-
-        //The bounce factor is randomized
-        star.body.bounce.y = 0.7 + Math.random() * 0.2;
-    }
-
-    //Creates a single diamond object near the top of the level
-    //at a random x position
-    diamond = game.add.sprite(800 - ((Math.random() * 700) + 100), 400, 'diamond');
-    game.physics.arcade.enable(diamond);
-    diamond.enableBody = true;
-    diamond.immovable = true;
-
-    //The text in the game labeling the score
-    scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
-
-    //Variable that stores the input information from the keyboard
-    cursors = game.input.keyboard.createCursorKeys();
-
-    //Creates enemies
-    for (var i = 0; i < 2; i++)
-    {
-        var enemy = baddie.create(800 - ((Math.random() * 700) + 100), 0, 'baddie');
-        enemy.animations.add('idling', [i * 2, i * 2 + 1], 10, true);
-        enemy.animations.play('idling');
-        enemy.body.gravity.y = 300;
-    }
-}
-
-function update() {
-
-    //Checks for collisions between the player and any platforms
-    //Defaults to preventing the player from passing through it
-    var hitPlatform = game.physics.arcade.collide(player, platforms);
-    game.physics.arcade.collide(stars, platforms);
-    game.physics.arcade.collide(baddie, platforms);
-
-    //If the player touches a star, the collectStar function is called
-    game.physics.arcade.overlap(player, stars, collectStar, null, this);
-
-    //If the player touches the diamond, the collectDiamond function is called
-    game.physics.arcade.overlap(player, diamond, collectDiamond, null, this);
-
-    //If the player touches an enemy, the enemy dies and the player loses 25 points
-    game.physics.arcade.overlap(player, baddie, attacked, null, this);
-
-    //Stops the player movement if nothing is being pressed
-    player.body.velocity.x = 0;
-
-    if (cursors.left.isDown)
-    {
-        //  Move to the left
-        player.body.velocity.x = -150;
-
-        player.animations.play('left');
-    }
-    else if (cursors.right.isDown)
-    {
-        //  Move to the right
-        player.body.velocity.x = 150;
-
-        player.animations.play('right');
-    }
-    else
-    {
-        //No movement
-        player.animations.stop();
-
-        player.frame = 4;
-    }
-    
-    //  Allows the player to jump only if they are touching the ground.
-    if (cursors.up.isDown && player.body.touching.down && hitPlatform)
-    {
-        player.body.velocity.y = -350;
-    }
-
-}
-
-function collectStar (player, star) 
+function create() 
 {
-    
-    //Erases the star object
-    star.kill();
 
-    //Changes the score
-    score += 10;
-    scoreText.text = 'Score: ' + score;
+	//enable arcade physics
+	game.physics.startSystem(Phaser.Physics.ARCADE);
+	
+	//Set world size
+	game.world.setBounds(0, 0, 2000, 1600);
 
+	//allows for access to mouse information
+	game.input.mouse.capture = true;
+
+/* 	//makes two plants to grow from in the world
+	//there are two to test if multiple plants
+	//can exist
+	createPlant(game.world.width / 2, game.world.height / 2);
+	createPlant(game.world.width / 4, game.world.height / 4); */
+	
+	//Create the plants in positions modeled after the paper prototype
+	createPlant(350, 1200);
+	createPlant(450, 50);
+	createPlant(675, 610);
+	createPlant(1425, 100);
+	createPlant(1525, 800);
+
+	//Adds platforms  Groups and enables physics for them
+	platforms = game.add.group();
+	platforms.enableBody = true;
+	
+	//Creates starting and ending ledge
+	var ledge = platforms.create(-200,125, 'platform');
+	ledge.body.immovable = true;
+	ledge = platforms.create(game.world.width - 200, 275, 'platform');
+	ledge.body.immovable = true;
+		
+	//makes the player object and adds it to
+	//its group
+	players = game.add.group();
+	players.enableBody = true;
+	player = players.create(0, 0, 'player');
+	
+	//Turns on world boundaries for player
+	player.body.collideWorldBounds = true;
+	player.body.bounce.y = .02; //adds bounce to the player
+	player.body.gravity.y = 200; //sets player gravity
+
+	//object to store keyboard inputs
+	input = game.input.keyboard.createCursorKeys();
+
+	//adds spacebar information to spacekey
+	spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+	//adds mouse information to mouse
+	mouse = game.input.activePointer;
+	
+	//Camera follows player
+	game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON, 0.5, 0.5);
 }
 
-//Replica of the collectStar function,
-//expect it handles the events of the diamond
-function collectDiamond (player, diamond)
+function update() 
 {
-    diamond.kill();
+	//sets player velocity to 0 if nothing is being pressed
+	player.body.velocity.x = 0;
+	//player.body.velocity.y = 0; removed so gravity works
+	
+	//floaty fall
+	if(player.body.velocity.y > 50 && input.up.isDown)
+	{
+		player.body.velocity.y = 50;
+	}
 
-    score += 50;
-    scoreText.text = 'Score: ' + score;
+	//treats the plant objects as walls
+	game.physics.arcade.collide(player, plants);
+	
+	//collision detection boolean for ground/platforms and player
+	var hitPlatform = game.physics.arcade.collide(player, platforms);
+
+	//isDown will be true if the left click
+	//is down. The forEach function will browse
+	//through all existing plant groups to see
+	//which one is being clicked, so that the 
+	//right plant will grow
+	if (game.input.activePointer.isDown)
+		plants.forEach(identifyPlantGroup);
+
+	//the following if/else statements allows for player movement
+	if (input.left.isDown && !isLightMode)
+		player.body.velocity.x = -150;
+
+	else if (input.right.isDown && !isLightMode)
+		player.body.velocity.x = 150;
+
+	if (input.up.isDown && !isLightMode && player.body.touching.down)//Jumping, works if touching the ground and not in lgiht mode
+		player.body.velocity.y = -225;
+
+/* 	//outdated downwards movement before gravity
+	else if (input.down.isDown && !isLightMode)
+		player.body.velocity.y = 150; */
+
+	//upon pressing the spacebar, you can alternate
+	//from player mode and light mode as long as player is on a surface
+	if (spaceKey.downDuration(1) && !isLightMode && player.body.touching.down)
+	{
+		isLightMode = true;
+		player.loadTexture('lightMode');
+	}
+	else if(spaceKey.downDuration(1) && isLightMode)
+	{
+		isLightMode = false;
+		player.loadTexture('player');
+	}
 }
 
-function attacked (player, enemy)
+//creates a plant group and adds 
+//a new initial plant object to the game 
+//at position (x,y)
+function createPlant(x, y)
 {
-    enemy.kill();
+	var plantGroup = game.add.group();
+	plantGroup.enableBody = true;
+	plant = plantGroup.create(x, y, 'plant');
+	plant.body.immovable = true;
 
-    score -= 25;
-    scoreText.text = 'Score: ' + score;
+	//adds the new plant group to the array
+	//of plants
+	plants.push(plantGroup);
+}
+
+//this function receives a phaser group of one
+//of the plants and processes it to grow.
+function growPlant(plantGroup)
+{
+	//plant growing is only allowed if there is no plant
+	//where the mouse is, if the length has not surpassed
+	//100 plants, and if the player is in light mode.
+	if (plantGroup.total < 100 && isLightMode)
+	{
+		//makes a theoretical plant to see if it a plant
+		//can officially be made here
+		plant = game.add.sprite(mouse.x, mouse.y, 'box');
+		game.physics.arcade.enable(plant);
+
+		//checks if the plant part you just made is connected
+		//to the main plant.
+		//If it isn't, get rid of the theoretical plant
+		//also checks to see if the player is in the way
+		if (game.physics.arcade.overlap(plant, plantGroup) && !isBlockedByPlayer())
+		{
+			//checks to see if the sprite is within a range of distance
+			//to be able to create the plant
+			if (inRange(distanceBetween(plantGroup.getChildAt(plantGroup.total - 1), plant), 5, 20))
+			{
+				plant.destroy();
+				plant = plantGroup.create(game.input.mousePointer.x, game.input.mousePointer.y, 'box');
+				plant.body.immovable = true;
+			}
+			else
+				plant.destroy();
+		}
+		else
+		{
+			plant.destroy();
+		}
+	}
+
+	console.log('total plants: ' + plantGroup.total);
+}
+
+//function that determines which plant group
+//the mouse is on. It uses the same logic as
+//growPlant that creates a theoretical plant,
+//and sees if it is connected with the group
+//being looked at in the moment. If so, the
+//right plant group has been found, and it can
+//proceed to grow.
+function identifyPlantGroup(plantGroup)
+{
+	plant = game.add.sprite(mouse.x, mouse.y, 'box');
+	game.physics.arcade.enable(plant);
+
+	if(game.physics.arcade.overlap(plant, plantGroup))
+	{
+		plant.destroy();
+		growPlant(plantGroup);
+	}
+	else
+		plant.destroy();
+}
+
+//uses the distance formula and the (x,y) coordinates of
+//two plants to find the distance between 2 plants
+function distanceBetween(plantOne, plantTwo)
+{
+	var distance = Math.sqrt(Math.pow((plantTwo.x - plantOne.x), 2) + Math.pow((plantTwo.y - plantOne.y), 2));
+	console.log('distance: ' + distance);
+	return distance;
+}
+
+//checks to see if number is inclusively between low and high
+function inRange(number, low, high)
+{
+	if (number >= low && number <= high)
+		return true;
+	else
+		return false;
+}
+
+//checks to see if the mouse is on the player
+function isBlockedByPlayer()
+{
+	if(game.physics.arcade.getObjectsUnderPointer(mouse, players) != 0)
+		return true;
+	else
+		return false;
 }
