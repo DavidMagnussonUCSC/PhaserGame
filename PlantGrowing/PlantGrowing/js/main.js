@@ -1,5 +1,5 @@
 //code created by Alain Kassarjian
-var game = new Phaser.Game(2000, 1600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 function preload() 
 {
@@ -84,7 +84,7 @@ function create()
 	players = game.add.group();
 	players.enableBody = true;
 	player = players.create(0, 0, 'player');
-	
+		
 	//Turns on world boundaries for player
 	player.body.collideWorldBounds = true;
 	player.body.bounce.y = .02; //adds bounce to the player
@@ -100,7 +100,7 @@ function create()
 	mouse = game.input.activePointer;
 	
 	//Camera follows player
-	game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON, 0.5, 0.5);
+	game.camera.follow(player,Phaser.Camera.FOLLOW_PLATFORMER, 0.5, 0.5);
 }
 
 function update() 
@@ -183,7 +183,7 @@ function growPlant(plantGroup)
 	{
 		//makes a theoretical plant to see if it a plant
 		//can officially be made here
-		plant = game.add.sprite(mouse.x, mouse.y, 'box');
+		plant = game.add.sprite(mouse.worldX, mouse.worldY, 'box');
 		game.physics.arcade.enable(plant);
 
 		//checks if the plant part you just made is connected
@@ -197,7 +197,7 @@ function growPlant(plantGroup)
 			if (inRange(distanceBetween(plantGroup.getChildAt(plantGroup.total - 1), plant), 5, 20))
 			{
 				plant.destroy();
-				plant = plantGroup.create(game.input.mousePointer.x, game.input.mousePointer.y, 'box');
+				plant = plantGroup.create(game.input.mousePointer.worldX, game.input.mousePointer.worldY, 'box');
 				plant.body.immovable = true;
 			}
 			else
@@ -221,7 +221,7 @@ function growPlant(plantGroup)
 //proceed to grow.
 function identifyPlantGroup(plantGroup)
 {
-	plant = game.add.sprite(mouse.x, mouse.y, 'box');
+	plant = game.add.sprite(mouse.worldX, mouse.worldY, 'box');
 	game.physics.arcade.enable(plant);
 
 	if(game.physics.arcade.overlap(plant, plantGroup))
