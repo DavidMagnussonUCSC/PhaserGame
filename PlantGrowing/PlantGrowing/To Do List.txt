@@ -1,3 +1,5 @@
 DONE Change color of starting location of plant
 DONE Plant is smaller than starting sprite
 DONE Try the player changing mode to control plant
+DONE When creating plant, check player location to prevent interferance
+DONE Get code to work with multiple plants existing

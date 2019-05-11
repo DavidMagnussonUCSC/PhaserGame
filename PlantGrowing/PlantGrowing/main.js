@@ -11,12 +11,34 @@ function preload()
 }
 
 //global variables
-var platforms;
+
+//an array that holds all the plant groups
+var plants = [];
+
+//this is used in various functions to temporarily
+//store a plant
 var plant;
+
+//the main player object
 var player;
+
+//variable to store and describe arrow key input information
 var input;
+
+//boolean for if light mode is on or off
 var isLightMode = false;
+
+//variable to store and describe spacebar input information
 var spaceKey;
+
+//variable to store and describe mouse input information
+var mouse;
+
+//the player needed a group object to belong to
+//so that the getObjectsUnderPointer function
+//could process it. var player should be the only
+//object in this group
+var players;
 
 function create() 
 {
@@ -26,22 +48,26 @@ function create()
 	//allows for access to mouse information
 	game.input.mouse.capture = true;
 
-	//the group in which the drawn plant objects will be stored
-	platforms = game.add.group();
-	platforms.enableBody = true;
+	//makes two plants to grow from in the world
+	//there are two to test if multiple plants
+	//can exist
+	createPlant(game.world.width / 2, game.world.height / 2);
+	createPlant(game.world.width / 4, game.world.height / 4);
 
-	//create a plant to start from
-	plant = platforms.create(game.world.width / 2, game.world.height / 2, 'plant');
-	plant.body.immovable = true;
-
-	//adds player and its physics
-	player = game.add.sprite(0, 0, 'player');
-	game.physics.arcade.enable(player);
+	//makes the player object and adds it to
+	//its group
+	players = game.add.group();
+	players.enableBody = true;
+	player = players.create(0, 0, 'player');
 
 	//object to store keyboard inputs
 	input = game.input.keyboard.createCursorKeys();
 
+	//adds spacebar information to spacekey
 	spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+	//adds mouse information to mouse
+	mouse = game.input.activePointer;
 }
 
 function update() 
@@ -51,28 +77,88 @@ function update()
 	player.body.velocity.y = 0;
 
 	//treats the plant objects as walls
-	game.physics.arcade.collide(player, platforms);
+	game.physics.arcade.collide(player, plants);
 
-	//displays the total number of plant objects created
-	game.debug.text(platforms.total, game.world.width / 2, 100);
+	//isDown will be true if the left click
+	//is down. The forEach function will browse
+	//through all existing plant groups to see
+	//which one is being clicked, so that the 
+	//right plant will grow
+	if (game.input.activePointer.isDown)
+		plants.forEach(identifyPlantGroup);
 
-	//creates plants if left mouse is being pressed and if another plant object does not exist
-	//at the mouse's cursor coordinate
-	if (game.input.activePointer.isDown && !isOccupied(game.input.mousePointer.x, game.input.mousePointer.y) && platforms.total < 100 && isLightMode)
+	//the following if/else statements allows for player movement
+	if (input.left.isDown && !isLightMode)
+		player.body.velocity.x = -150;
+
+	else if (input.right.isDown && !isLightMode)
+		player.body.velocity.x = 150;
+
+	else if (input.up.isDown && !isLightMode)
+		player.body.velocity.y = -150;
+
+	else if (input.down.isDown && !isLightMode)
+		player.body.velocity.y = 150;
+
+	//upon pressing the spacebar, you can alternate
+	//from player mode and light mode
+	if (spaceKey.downDuration(1) && !isLightMode)
+	{
+		isLightMode = true;
+		player.loadTexture('lightMode');
+	}
+	else if(spaceKey.downDuration(1) && isLightMode)
+	{
+		isLightMode = false;
+		player.loadTexture('player');
+	}
+}
+
+//creates a plant group and adds 
+//a new initial plant object to the game 
+//at position (x,y)
+function createPlant(x, y)
+{
+	var plantGroup = game.add.group();
+	plantGroup.enableBody = true;
+	plant = plantGroup.create(x, y, 'plant');
+	plant.body.immovable = true;
+
+	//adds the new plant group to the array
+	//of plants
+	plants.push(plantGroup);
+}
+
+//this function receives a phaser group of one
+//of the plants and processes it to grow.
+function growPlant(plantGroup)
+{
+	//plant growing is only allowed if there is no plant
+	//where the mouse is, if the length has not surpassed
+	//100 plants, and if the player is in light mode.
+	if (plantGroup.total < 100 && isLightMode)
 	{
 		//makes a theoretical plant to see if it a plant
 		//can officially be made here
-		plant = game.add.sprite(game.input.mousePointer.x, game.input.mousePointer.y, 'box');
+		plant = game.add.sprite(mouse.x, mouse.y, 'box');
 		game.physics.arcade.enable(plant);
 
 		//checks if the plant part you just made is connected
 		//to the main plant.
 		//If it isn't, get rid of the theoretical plant
-		if (game.physics.arcade.overlap(plant, platforms))
+		//also checks to see if the player is in the way
+		if (game.physics.arcade.overlap(plant, plantGroup) && !isBlockedByPlayer())
 		{
-			plant.destroy();
-			plant = platforms.create(game.input.mousePointer.x, game.input.mousePointer.y, 'box');
-			plant.body.immovable = true;
+			//checks to see if the sprite is within a range of distance
+			//to be able to create the plant
+			if (inRange(distanceBetween(plantGroup.getChildAt(plantGroup.total - 1), plant), 5, 20))
+			{
+				plant.destroy();
+				plant = plantGroup.create(game.input.mousePointer.x, game.input.mousePointer.y, 'box');
+				plant.body.immovable = true;
+			}
+			else
+				plant.destroy();
 		}
 		else
 		{
@@ -80,54 +166,53 @@ function update()
 		}
 	}
 
-	//the following if/else statements allows for player movement
-	if (input.left.isDown && !isLightMode)
-	{
-		player.body.velocity.x = -150;
-	}
-
-	else if (input.right.isDown && !isLightMode)
-	{
-		player.body.velocity.x = 150;
-	}
-
-	else if (input.up.isDown && !isLightMode)
-	{
-		player.body.velocity.y = -150;
-	}
-
-	else if (input.down.isDown && !isLightMode)
-	{
-		player.body.velocity.y = 150;
-	}
-
-	//upon pressing the spacebar, you can alternate
-	//from player mode and light mode
-	if (spaceKey.downDuration(1) && !isLightMode)
-	{
-		console.log('light mode on');
-		isLightMode = true;
-		player.loadTexture('lightMode');
-	}
-	else if(spaceKey.downDuration(1) && isLightMode)
-	{
-		console.log('light mode off');
-		isLightMode = false;
-		player.loadTexture('player');
-	}
+	console.log('total plants: ' + plantGroup.total);
 }
 
-//checks to see if an object exists at the given coordinate
-function isOccupied(x, y)
+//function that determines which plant group
+//the mouse is on. It uses the same logic as
+//growPlant that creates a theoretical plant,
+//and sees if it is connected with the group
+//being looked at in the moment. If so, the
+//right plant group has been found, and it can
+//proceed to grow.
+function identifyPlantGroup(plantGroup)
 {
-	//getObjectsAtLocation returns an array of objects
-	//in the platform group that exist at the given xy coordinate.
-	//If the length of that array is 0, there must be no objects at
-	//the given coordinate, so it is therefore not occupied.
-	if (game.physics.arcade.getObjectsAtLocation(x, y, platforms).length == 0)
+	plant = game.add.sprite(mouse.x, mouse.y, 'box');
+	game.physics.arcade.enable(plant);
+
+	if(game.physics.arcade.overlap(plant, plantGroup))
 	{
-		return false;
+		plant.destroy();
+		growPlant(plantGroup);
 	}
 	else
+		plant.destroy();
+}
+
+//uses the distance formula and the (x,y) coordinates of
+//two plants to find the distance between 2 plants
+function distanceBetween(plantOne, plantTwo)
+{
+	var distance = Math.sqrt(Math.pow((plantTwo.x - plantOne.x), 2) + Math.pow((plantTwo.y - plantOne.y), 2));
+	console.log('distance: ' + distance);
+	return distance;
+}
+
+//checks to see if number is inclusively between low and high
+function inRange(number, low, high)
+{
+	if (number >= low && number <= high)
 		return true;
+	else
+		return false;
+}
+
+//checks to see if the mouse is on the player
+function isBlockedByPlayer()
+{
+	if(game.physics.arcade.getObjectsUnderPointer(mouse, players) != 0)
+		return true;
+	else
+		return false;
 }
