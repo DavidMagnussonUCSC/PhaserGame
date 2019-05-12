@@ -1,4 +1,4 @@
-
+//code created by Alain Kassarjian
 var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 function preload() 
@@ -8,9 +8,7 @@ function preload()
 	game.load.image('player', 'assets/Player.png');
 	game.load.image('plant', 'assets/Plant.png');
 	game.load.image('lightMode', 'assets/Player_LightMode.png');
-
-	//Borrowed from first phaser game, replace post first prototype
-	game.load.image('platform', 'assets/platform.png');
+	game.load.image('platform', 'assets/platform.png'); //Borrowed from first phaser game, replace post first prototype
 }
 
 //global variables
@@ -53,10 +51,17 @@ function create()
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 	
 	//Set world size
+	//setBounds(x, y, width, height)
 	game.world.setBounds(0, 0, game.width*2, game.height*2);
 
 	//allows for access to mouse information
 	game.input.mouse.capture = true;
+
+/* 	//makes two plants to grow from in the world
+	//there are two to test if multiple plants
+	//can exist
+	createPlant(game.world.width / 2, game.world.height / 2);
+	createPlant(game.world.width / 4, game.world.height / 4); */
 	
 	//Create the plants in positions modeled after the paper prototype
 	createPlant(350, 1200);
@@ -74,16 +79,18 @@ function create()
 	ledge.body.immovable = true;
 	ledge = platforms.create(game.world.width - 200, 275, 'platform');
 	ledge.body.immovable = true;
-
-	//makes the player object and adds it to its group
-	//Turns on world boundaries for player
-	//adds bounce to the player
-	//sets player gravity
+		
+	//makes the player object and adds it to
+	//its group
 	players = game.add.group();
 	players.enableBody = true;
-	player = players.create(80, 50, 'player');
-	player.anchor.set(0.5);
+	player = players.create(0, 0, 'player');
+		
+	//Turns on world boundaries for player
 	player.body.collideWorldBounds = true;
+
+	//adds bounce to the player
+	//sets player gravity
 	player.body.bounce.y = .02;
 	player.body.gravity.y = 200;
 
@@ -106,7 +113,7 @@ function update()
 	player.body.velocity.x = 0;
 	//player.body.velocity.y = 0; removed so gravity works
 	
-	//if UP is held while falling, it makes a "floaty" fall
+	//floaty fall
 	if(player.body.velocity.y > 50 && input.up.isDown)
 	{
 		player.body.velocity.y = 50;
@@ -152,15 +159,7 @@ function update()
 		isLightMode = false;
 		player.loadTexture('player');
 	}
-
-	if(player.y > game.world.height-50){
-		player.reset(80,50);
-	}
-
-	//used for debugging purposes
-	render();
 }
-
 
 //creates a plant group and adds 
 //a new initial plant object to the game 
@@ -171,35 +170,10 @@ function createPlant(x, y)
 	plantGroup.enableBody = true;
 	plant = plantGroup.create(x, y, 'plant');
 	plant.body.immovable = true;
-	plant.anchor.set(0.5);
 
 	//adds the new plant group to the array
 	//of plants
 	plants.push(plantGroup);
-}
-
-//function that determines which plant group
-//the mouse is on. It uses the same logic as
-//growPlant that creates a theoretical plant,
-//and sees if it is connected with the group
-//being looked at in the moment. If so, the
-//right plant group has been found, and it can
-//proceed to grow.
-function identifyPlantGroup(plantGroup)
-{	
-
-	plant = game.add.sprite(mouse.worldX, mouse.worldY, 'box');
-	game.physics.arcade.enable(plant);
-	plant.anchor.set(0.5);
-
-	if(game.physics.arcade.overlap(plant, plantGroup))
-	{
-		plant.destroy();
-		//console.log(plantGroup)
-		growPlant(plantGroup);
-	}
-	else
-		plant.destroy();
 }
 
 //this function receives a phaser group of one
@@ -211,12 +185,10 @@ function growPlant(plantGroup)
 	//100 plants, and if the player is in light mode.
 	if (plantGroup.total < 100 && isLightMode)
 	{
-
 		//makes a theoretical plant to see if it a plant
 		//can officially be made here
 		plant = game.add.sprite(mouse.worldX, mouse.worldY, 'box');
 		game.physics.arcade.enable(plant);
-		plant.anchor.set(0.5);
 
 		//checks if the plant part you just made is connected
 		//to the main plant.
@@ -231,7 +203,6 @@ function growPlant(plantGroup)
 				plant.destroy();
 				plant = plantGroup.create(game.input.mousePointer.worldX, game.input.mousePointer.worldY, 'box');
 				plant.body.immovable = true;
-				plant.anchor.set(0.5);
 			}
 			else
 				plant.destroy();
@@ -241,11 +212,32 @@ function growPlant(plantGroup)
 			plant.destroy();
 		}
 
-		//outputs to console the total remain plant "links" in a group
+		//spits out to console the remaining plant "links"
 		console.log('total plants: ' + plantGroup.total);
 
 	}
 
+}
+
+//function that determines which plant group
+//the mouse is on. It uses the same logic as
+//growPlant that creates a theoretical plant,
+//and sees if it is connected with the group
+//being looked at in the moment. If so, the
+//right plant group has been found, and it can
+//proceed to grow.
+function identifyPlantGroup(plantGroup)
+{
+	plant = game.add.sprite(mouse.worldX, mouse.worldY, 'box');
+	game.physics.arcade.enable(plant);
+
+	if(game.physics.arcade.overlap(plant, plantGroup))
+	{
+		plant.destroy();
+		growPlant(plantGroup);
+	}
+	else
+		plant.destroy();
 }
 
 //uses the distance formula and the (x,y) coordinates of
@@ -273,13 +265,4 @@ function isBlockedByPlayer()
 		return true;
 	else
 		return false;
-}
-
-//used for debug info
-function render() 
-{
-    // display some debug info of the camera
-    game.debug.cameraInfo(game.camera, 32, 32);
-    // display some debug info of the camera
-    game.debug.spriteInfo(player, 32, game.height - 120);
 }
