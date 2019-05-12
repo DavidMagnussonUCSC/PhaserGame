@@ -3,3 +3,24 @@ DONE Plant is smaller than starting sprite
 DONE Try the player changing mode to control plant
 DONE When creating plant, check player location to prevent interferance
 DONE Get code to work with multiple plants existing
+
+
+(requires a rework for a later time //[maybe]\\) Plant length still has some length consistancy issue
+	- has a min length and a max length but under the right circumstances plant length can be x4 longer than another plant (see pictures in discord)
+
+Bug fixes / QOL changes-
+
+	- fixed console putting out plant length info after max growth has been achieve
+	- plant growth is now checked in the center of the starting point
+	- plants are centered on the cursor instead of off to the right and down a little
+	- changed anchor of player / spawn of player
+	- changed game.html to index.html to run automatically in localhost:8000
+	- added debugging info for development purposes
+	- (Temp fix) Respawning of Player when fallen to botom of map, GOAL: have them fall out of the screen bounds and then respawned back 
+	- moved around some plant functions to read better (create > identify > grow)
+	- some more comments/formatting to clarify some stuff
+
+
+Plans?:
+- restarting of plants?
+- ^(same but without player being on top of plant)
