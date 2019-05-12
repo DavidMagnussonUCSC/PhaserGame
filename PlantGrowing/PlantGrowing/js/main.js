@@ -9,6 +9,7 @@ function preload()
 	game.load.image('plant', 'assets/Plant.png');
 	game.load.image('lightMode', 'assets/Player_LightMode.png');
 	game.load.image('platform', 'assets/platform.png'); //Borrowed from first phaser game, replace post first prototype
+	game.load.image('ball', 'assets/ball.png');
 }
 
 //global variables
@@ -44,6 +45,10 @@ var platforms;
 //object in this group
 var players;
 
+//pushable object(s)
+var balls;
+var acorn;
+
 function create() 
 {
 
@@ -69,7 +74,7 @@ function create()
 	createPlant(1425, 100);
 	createPlant(1525, 800);
 
-	//Adds platforms  Groups and enables physics for them
+	//Adds platforms group and enables physics for them
 	platforms = game.add.group();
 	platforms.enableBody = true;
 	
@@ -84,11 +89,21 @@ function create()
 	players = game.add.group();
 	players.enableBody = true;
 	player = players.create(0, 0, 'player');
+	
 		
 	//Turns on world boundaries for player
 	player.body.collideWorldBounds = true;
 	player.body.bounce.y = .02; //adds bounce to the player
 	player.body.gravity.y = 200; //sets player gravity
+	
+	//creates a balls group, enables physics, and creates a pushable 'acorn'
+	balls = game.add.group();
+	balls.enableBody = true;
+	acorn = balls.create(70, 0, 'ball');
+	acorn.body.setCircle(20);//creates a circular hitbox for the ball	
+	//acorn.body.drag.setTo(5000); //adds drag to the 'acorn' so it stops moving on its own.
+	acorn.body.bounce.y = .5; //adds bounce
+	acorn.body.gravity.y = 200; //adds gravity
 
 	//object to store keyboard inputs
 	input = game.input.keyboard.createCursorKeys();
@@ -114,12 +129,37 @@ function update()
 	{
 		player.body.velocity.y = 50;
 	}
+		
+	acorn.body.angularVelocity = acorn.body.velocity.x * .1;
+	console.log(acorn.body.velocity.x);
+	
+/* 	if(acorn.body.velocity.x  = 0)
+	{
+		acorn.body.angularVelocity = 0;
+	}
+	else if(acorn.body.velocity.x > 0)
+	{
+		acorn.body.angularVelocity = 6;
+	}
+	else if (acorn.body.velocity.x < 0)
+	{
+		acorn.body.angularVelocity = -6;
+	} */
 
 	//treats the plant objects as walls
 	game.physics.arcade.collide(player, plants);
 	
+	//adds collision for balls and platforms/player/plants
+	game.physics.arcade.collide(balls, platforms);
+
+	game.physics.arcade.collide(player, balls, pushBall, null, this);﻿
+	game.physics.arcade.collide(balls, plants);
+	
+	
+	
 	//collision detection boolean for ground/platforms and player
 	var hitPlatform = game.physics.arcade.collide(player, platforms);
+	
 
 	//isDown will be true if the left click
 	//is down. The forEach function will browse
@@ -258,4 +298,9 @@ function isBlockedByPlayer()
 		return true;
 	else
 		return false;
+}
+
+function pushBall(player, acorn)
+{
+	acorn.body.velocity.x = player.body.velocity.x;
 }
