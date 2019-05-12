@@ -5,6 +5,7 @@ function preload()
 {
 	//image assets
 	game.load.image('box', 'assets/Box.png');
+	game.load.image('ui', 'assets/UI.png');
 	game.load.image('player', 'assets/Player.png');
 	game.load.image('plant', 'assets/Plant.png');
 	game.load.image('lightMode', 'assets/Player_LightMode.png');
@@ -39,6 +40,9 @@ var mouse;
 
 //variable for group
 var platforms;
+
+//group for all the UI Elements
+var UIGroup;
 
 //the player needed a group object to belong to
 //so that the getObjectsUnderPointer function
@@ -98,6 +102,12 @@ function create()
 	
 	//Camera follows player
 	game.camera.follow(player,Phaser.Camera.FOLLOW_PLATFORMER, 0.5, 0.5);
+
+	//creation of UI elements
+	UIGroup = game.add.group();
+    createUIElement(game.camera.width-50, 50, 'ui');
+    createUIElement(game.camera.width-100, 50, 'ui');
+    createUIElement(game.camera.width-150, 50, 'ui');
 }
 
 function update() 
@@ -153,9 +163,39 @@ function update()
 		player.loadTexture('player');
 	}
 
+	//if the player falls to the bottom of the screen it resets them
 	if(player.y > game.world.height-50){
 		player.reset(80,50);
 	}
+
+	/* 	this is the base camera stuff that is super 
+	wonky but kinda works/will get fixed */
+
+	//camera zoom in
+	if(game.input.keyboard.isDown(Phaser.Keyboard.O)){
+        if(game.camera.y <= game.height){
+            game.camera.scale.x += 0.005;
+            game.camera.scale.y += 0.005;
+        }
+
+        // game.camera.bounds.x = size.x * game.camera.scale.x;
+        // game.camera.bounds.y = size.y * game.camera.scale.y;
+        // game.camera.bounds.width = size.width * game.camera.scale.x;
+        // game.camera.bounds.height = size.height * game.camera.scale.y;
+    }
+    //camera zoom out
+    else if(game.input.keyboard.isDown(Phaser.Keyboard.P)){
+        
+        if(game.camera.y >= 2){
+            game.camera.scale.x -= 0.005;
+            game.camera.scale.y -= 0.005;
+        }
+
+        // game.camera.bounds.x = size.x * game.camera.scale.x;
+        // game.camera.bounds.y = size.y * game.camera.scale.y;
+        // game.camera.bounds.width = size.width * game.camera.scale.x;
+        // game.camera.bounds.height = size.height * game.camera.scale.y;
+    }
 
 	//used for debugging purposes
 	render();
@@ -206,6 +246,10 @@ function identifyPlantGroup(plantGroup)
 //of the plants and processes it to grow.
 function growPlant(plantGroup)
 {
+	//scales the plant down the further it goes to make it slightly skinner
+	var plantScale = 1.25-(plantGroup.total/135);
+	console.log(plantScale);
+
 	//plant growing is only allowed if there is no plant
 	//where the mouse is, if the length has not surpassed
 	//100 plants, and if the player is in light mode.
@@ -232,6 +276,7 @@ function growPlant(plantGroup)
 				plant = plantGroup.create(game.input.mousePointer.worldX, game.input.mousePointer.worldY, 'box');
 				plant.body.immovable = true;
 				plant.anchor.set(0.5);
+				plant.scale.set(plantScale,plantScale);
 			}
 			else
 				plant.destroy();
@@ -282,4 +327,11 @@ function render()
     game.debug.cameraInfo(game.camera, 32, 32);
     // display some debug info of the camera
     game.debug.spriteInfo(player, 32, game.height - 120);
+}
+
+//for creating UI Elements fixed to the camera
+function createUIElement(x, y, pic){
+	uiElement = UIGroup.create(x, y, pic);
+    uiElement.fixedToCamera = true;
+    uiElement.anchor.set(0.5);
 }
