@@ -44,6 +44,9 @@ var platforms;
 //group for all the UI Elements
 var UIGroup;
 
+//scale goes from 1-2x zoom
+var cameraScale = 2;
+
 //the player needed a group object to belong to
 //so that the getObjectsUnderPointer function
 //could process it. var player should be the only
@@ -76,8 +79,13 @@ function create()
 	//Creates starting and ending ledge
 	var ledge = platforms.create(-200,125, 'platform');
 	ledge.body.immovable = true;
-	ledge = platforms.create(game.world.width - 200, 275, 'platform');
+	ledge.body.syncBounds = true;
+	//ledge.anchor.set(0.5);
+
+	ledge = platforms.create(game.world.width-200, 275, 'platform');
 	ledge.body.immovable = true;
+	ledge.body.syncBounds = true;
+	//ledge.anchor.set(0.5);
 
 	//makes the player object and adds it to its group
 	//Turns on world boundaries for player
@@ -90,6 +98,7 @@ function create()
 	player.body.collideWorldBounds = true;
 	player.body.bounce.y = .02;
 	player.body.gravity.y = 200;
+	player.body.syncBounds = true;
 
 	//object to store keyboard inputs
 	input = game.input.keyboard.createCursorKeys();
@@ -101,7 +110,7 @@ function create()
 	mouse = game.input.activePointer;
 	
 	//Camera follows player
-	game.camera.follow(player,Phaser.Camera.FOLLOW_PLATFORMER, 0.5, 0.5);
+	game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON, 0.5, 0.5);
 
 	//creation of UI elements
 	UIGroup = game.add.group();
@@ -173,11 +182,18 @@ function update()
 
 	//camera zoom in
 	if(game.input.keyboard.isDown(Phaser.Keyboard.O)){
-        if(game.camera.y <= game.height){
+        if(cameraScale <= 2){
             game.camera.scale.x += 0.005;
             game.camera.scale.y += 0.005;
+
+            //outdated stuff
+            //player.body.setSize((player.width/2)*cameraScale, (player.height/2)*cameraScale);
+
+            cameraScale += 0.01;
+    		//console.log(cameraScale);
         }
 
+        //outdated stuff
         // game.camera.bounds.x = size.x * game.camera.scale.x;
         // game.camera.bounds.y = size.y * game.camera.scale.y;
         // game.camera.bounds.width = size.width * game.camera.scale.x;
@@ -186,11 +202,21 @@ function update()
     //camera zoom out
     else if(game.input.keyboard.isDown(Phaser.Keyboard.P)){
         
-        if(game.camera.y >= 2){
+        if(cameraScale >= 1){
+        	cameraScale -= 0.005;
             game.camera.scale.x -= 0.005;
             game.camera.scale.y -= 0.005;
+
+            //outdated stuff
+            //player.body.setSize((player.width/2)*cameraScale, (player.height/2)*cameraScale);
+            //player.anchor.set(0.5);
+
+            cameraScale -= 0.005;
+    		//console.log(cameraScale);
+    		//console.log(game.camera.width);
         }
 
+        //outdated stuff
         // game.camera.bounds.x = size.x * game.camera.scale.x;
         // game.camera.bounds.y = size.y * game.camera.scale.y;
         // game.camera.bounds.width = size.width * game.camera.scale.x;
@@ -212,6 +238,7 @@ function createPlant(x, y)
 	plant = plantGroup.create(x, y, 'plant');
 	plant.body.immovable = true;
 	plant.anchor.set(0.5);
+	plant.body.syncBounds = true;
 
 	//adds the new plant group to the array
 	//of plants
@@ -277,6 +304,7 @@ function growPlant(plantGroup)
 				plant.body.immovable = true;
 				plant.anchor.set(0.5);
 				plant.scale.set(plantScale,plantScale);
+				plant.body.syncBounds = true;
 			}
 			else
 				plant.destroy();
@@ -320,6 +348,13 @@ function isBlockedByPlayer()
 		return false;
 }
 
+//for creating UI Elements fixed to the camera
+function createUIElement(x, y, pic){
+	uiElement = UIGroup.create(x, y, pic);
+    uiElement.fixedToCamera = true;
+    uiElement.anchor.set(0.5);
+}
+
 //used for debug info
 function render() 
 {
@@ -327,11 +362,6 @@ function render()
     game.debug.cameraInfo(game.camera, 32, 32);
     // display some debug info of the camera
     game.debug.spriteInfo(player, 32, game.height - 120);
-}
+    game.debug.body(player);
 
-//for creating UI Elements fixed to the camera
-function createUIElement(x, y, pic){
-	uiElement = UIGroup.create(x, y, pic);
-    uiElement.fixedToCamera = true;
-    uiElement.anchor.set(0.5);
 }

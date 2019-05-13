@@ -1,7 +1,9 @@
 body {
 	font-family: Helvetica;
+	background-color: #333;
 }
 
 canvas {
 	border: 1px solid black;
+	margin: auto;
 }
