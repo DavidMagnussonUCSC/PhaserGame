@@ -34,6 +34,7 @@ var isLightMode = false;
 
 //variable to store and describe spacebar input information
 var spaceKey;
+var rKey;
 
 //variable to store and describe mouse input information
 var mouse;
@@ -108,6 +109,8 @@ function create()
 	//adds spacebar information to spacekey
 	spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
+	rKey = game.input.keyboard.addKey(Phaser.Keyboard.R);
+
 	//adds mouse information to mouse
 	mouse = game.input.activePointer;
 	
@@ -116,9 +119,9 @@ function create()
 
 	//creation of UI elements
 	UIGroup = game.add.group();
-    createUIElement(game.camera.width-50, 50, 'ui');
-    createUIElement(game.camera.width-100, 50, 'ui');
-    createUIElement(game.camera.width-150, 50, 'ui');
+	createUIElement(game.camera.width-50, 50, 'ui');
+	createUIElement(game.camera.width-100, 50, 'ui');
+	createUIElement(game.camera.width-150, 50, 'ui');
 }
 
 function update() 
@@ -150,6 +153,10 @@ function update()
 			//console.log(activeGroup);
 			growPlant(activeGroup);
 		}
+	}
+
+	if(rKey.downDuration(1)){
+		resetPlant(activeGroup);
 	}
 
 	//the following if/else statements allows for player movement
@@ -189,16 +196,16 @@ function update()
 
 	//camera zoom in
 	if(game.input.keyboard.isDown(Phaser.Keyboard.O)){
-        if(cameraScale <= 2){
-            game.camera.scale.x += 0.005;
-            game.camera.scale.y += 0.005;
+		if(cameraScale <= 2){
+			game.camera.scale.x += 0.005;
+			game.camera.scale.y += 0.005;
 
             //outdated stuff
             //player.body.setSize((player.width/2)*cameraScale, (player.height/2)*cameraScale);
 
             cameraScale += 0.01;
     		//console.log(cameraScale);
-        }
+    	}
 
         //outdated stuff
         // game.camera.bounds.x = size.x * game.camera.scale.x;
@@ -208,11 +215,11 @@ function update()
     }
     //camera zoom out
     else if(game.input.keyboard.isDown(Phaser.Keyboard.P)){
-        
-        if(cameraScale >= 1){
-        	cameraScale -= 0.005;
-            game.camera.scale.x -= 0.005;
-            game.camera.scale.y -= 0.005;
+
+    	if(cameraScale >= 1){
+    		cameraScale -= 0.005;
+    		game.camera.scale.x -= 0.005;
+    		game.camera.scale.y -= 0.005;
 
             //outdated stuff
             //player.body.setSize((player.width/2)*cameraScale, (player.height/2)*cameraScale);
@@ -221,7 +228,7 @@ function update()
             cameraScale -= 0.005;
     		//console.log(cameraScale);
     		//console.log(game.camera.width);
-        }
+    	}
 
         //outdated stuff
         // game.camera.bounds.x = size.x * game.camera.scale.x;
@@ -277,7 +284,7 @@ function identifyPlantGroup(plantGroup)
 		plant.destroy();
 		//activeGroup = undefined;
 		//return null;
-}
+	}
 
 //this function receives a phaser group of one
 //of the plants and processes it to grow.
@@ -361,8 +368,8 @@ function isBlockedByPlayer()
 //for creating UI Elements fixed to the camera
 function createUIElement(x, y, pic){
 	uiElement = UIGroup.create(x, y, pic);
-    uiElement.fixedToCamera = true;
-    uiElement.anchor.set(0.5);
+	uiElement.fixedToCamera = true;
+	uiElement.anchor.set(0.5);
 }
 
 //used for debug info
@@ -374,4 +381,15 @@ function render()
     game.debug.spriteInfo(player, 32, game.height - 120);
     game.debug.body(player);
 
+}
+function resetPlant(activeGroup){
+	for(i = 0 ; i < plants.length ; i++){
+	if(activeGroup != null && plants[i] === activeGroup){
+		var temp = activeGroup.getBottom();
+		activeGroup.destroy();
+		createPlant(temp.x,temp.y);
+		plants[i] = null;
+		console.log(activeGroup);
+	}
+}
 }
