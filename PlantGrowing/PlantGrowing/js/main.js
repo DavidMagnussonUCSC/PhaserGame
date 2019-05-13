@@ -5,6 +5,7 @@ function preload()
 {
 	//image assets
 	game.load.image('box', 'assets/Box.png');
+	game.load.image('ui', 'assets/UI.png');
 	game.load.image('player', 'assets/Player.png');
 	game.load.image('plant', 'assets/Plant.png');
 	game.load.image('lightMode', 'assets/Player_LightMode.png');
@@ -40,6 +41,14 @@ var mouse;
 //variable for group
 var platforms;
 
+//group for all the UI Elements
+var UIGroup;
+
+//scale goes from 1-2x zoom
+var cameraScale = 2;
+
+var activeGroup;
+
 //the player needed a group object to belong to
 //so that the getObjectsUnderPointer function
 //could process it. var player should be the only
@@ -72,8 +81,13 @@ function create()
 	//Creates starting and ending ledge
 	var ledge = platforms.create(-200,125, 'platform');
 	ledge.body.immovable = true;
-	ledge = platforms.create(game.world.width - 200, 275, 'platform');
+	ledge.body.syncBounds = true;
+	//ledge.anchor.set(0.5);
+
+	ledge = platforms.create(game.world.width-200, 275, 'platform');
 	ledge.body.immovable = true;
+	ledge.body.syncBounds = true;
+	//ledge.anchor.set(0.5);
 
 	//makes the player object and adds it to its group
 	//Turns on world boundaries for player
@@ -86,6 +100,7 @@ function create()
 	player.body.collideWorldBounds = true;
 	player.body.bounce.y = .02;
 	player.body.gravity.y = 200;
+	player.body.syncBounds = true;
 
 	//object to store keyboard inputs
 	input = game.input.keyboard.createCursorKeys();
@@ -97,7 +112,13 @@ function create()
 	mouse = game.input.activePointer;
 	
 	//Camera follows player
-	game.camera.follow(player,Phaser.Camera.FOLLOW_PLATFORMER, 0.5, 0.5);
+	game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON, 0.5, 0.5);
+
+	//creation of UI elements
+	UIGroup = game.add.group();
+    createUIElement(game.camera.width-50, 50, 'ui');
+    createUIElement(game.camera.width-100, 50, 'ui');
+    createUIElement(game.camera.width-150, 50, 'ui');
 }
 
 function update() 
@@ -123,8 +144,13 @@ function update()
 	//through all existing plant groups to see
 	//which one is being clicked, so that the 
 	//right plant will grow
-	if (game.input.activePointer.isDown)
+	if (game.input.activePointer.isDown){
 		plants.forEach(identifyPlantGroup);
+		if(activeGroup != undefined){
+			//console.log(activeGroup);
+			growPlant(activeGroup);
+		}
+	}
 
 	//the following if/else statements allows for player movement
 	if (input.left.isDown && !isLightMode)
@@ -153,9 +179,56 @@ function update()
 		player.loadTexture('player');
 	}
 
+	//if the player falls to the bottom of the screen it resets them
 	if(player.y > game.world.height-50){
 		player.reset(80,50);
 	}
+
+	/* 	this is the base camera stuff that is super 
+	wonky but kinda works/will get fixed */
+
+	//camera zoom in
+	if(game.input.keyboard.isDown(Phaser.Keyboard.O)){
+        if(cameraScale <= 2){
+            game.camera.scale.x += 0.005;
+            game.camera.scale.y += 0.005;
+
+            //outdated stuff
+            //player.body.setSize((player.width/2)*cameraScale, (player.height/2)*cameraScale);
+
+            cameraScale += 0.01;
+    		//console.log(cameraScale);
+        }
+
+        //outdated stuff
+        // game.camera.bounds.x = size.x * game.camera.scale.x;
+        // game.camera.bounds.y = size.y * game.camera.scale.y;
+        // game.camera.bounds.width = size.width * game.camera.scale.x;
+        // game.camera.bounds.height = size.height * game.camera.scale.y;
+    }
+    //camera zoom out
+    else if(game.input.keyboard.isDown(Phaser.Keyboard.P)){
+        
+        if(cameraScale >= 1){
+        	cameraScale -= 0.005;
+            game.camera.scale.x -= 0.005;
+            game.camera.scale.y -= 0.005;
+
+            //outdated stuff
+            //player.body.setSize((player.width/2)*cameraScale, (player.height/2)*cameraScale);
+            //player.anchor.set(0.5);
+
+            cameraScale -= 0.005;
+    		//console.log(cameraScale);
+    		//console.log(game.camera.width);
+        }
+
+        //outdated stuff
+        // game.camera.bounds.x = size.x * game.camera.scale.x;
+        // game.camera.bounds.y = size.y * game.camera.scale.y;
+        // game.camera.bounds.width = size.width * game.camera.scale.x;
+        // game.camera.bounds.height = size.height * game.camera.scale.y;
+    }
 
 	//used for debugging purposes
 	render();
@@ -172,6 +245,7 @@ function createPlant(x, y)
 	plant = plantGroup.create(x, y, 'plant');
 	plant.body.immovable = true;
 	plant.anchor.set(0.5);
+	plant.body.syncBounds = true;
 
 	//adds the new plant group to the array
 	//of plants
@@ -196,16 +270,23 @@ function identifyPlantGroup(plantGroup)
 	{
 		plant.destroy();
 		//console.log(plantGroup)
-		growPlant(plantGroup);
+		//growPlant(plantGroup);
+		activeGroup = plantGroup;
 	}
 	else
 		plant.destroy();
+		//activeGroup = undefined;
+		//return null;
 }
 
 //this function receives a phaser group of one
 //of the plants and processes it to grow.
 function growPlant(plantGroup)
 {
+	//scales the plant down the further it goes to make it slightly skinner
+	var plantScale = 1.25-(plantGroup.total/135);
+	//console.log(plantScale);
+
 	//plant growing is only allowed if there is no plant
 	//where the mouse is, if the length has not surpassed
 	//100 plants, and if the player is in light mode.
@@ -232,6 +313,8 @@ function growPlant(plantGroup)
 				plant = plantGroup.create(game.input.mousePointer.worldX, game.input.mousePointer.worldY, 'box');
 				plant.body.immovable = true;
 				plant.anchor.set(0.5);
+				plant.scale.set(plantScale,plantScale);
+				plant.body.syncBounds = true;
 			}
 			else
 				plant.destroy();
@@ -275,6 +358,13 @@ function isBlockedByPlayer()
 		return false;
 }
 
+//for creating UI Elements fixed to the camera
+function createUIElement(x, y, pic){
+	uiElement = UIGroup.create(x, y, pic);
+    uiElement.fixedToCamera = true;
+    uiElement.anchor.set(0.5);
+}
+
 //used for debug info
 function render() 
 {
@@ -282,4 +372,6 @@ function render()
     game.debug.cameraInfo(game.camera, 32, 32);
     // display some debug info of the camera
     game.debug.spriteInfo(player, 32, game.height - 120);
+    game.debug.body(player);
+
 }
