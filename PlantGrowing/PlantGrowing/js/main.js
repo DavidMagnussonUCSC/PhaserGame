@@ -1,3 +1,5 @@
+//ARTG/CMPM 120 game first prototype by Team 49: Anthony Diaz, David Magnusson, and Alain Kassarjian
+
 //Initialize game
 var game = new Phaser.Game(2000, 1600, Phaser.AUTO, 'phaser',);
 
