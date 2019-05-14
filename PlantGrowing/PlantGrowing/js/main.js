@@ -43,19 +43,26 @@ var activeGroup;
 //object in this group
 var players;
 
+// MAIN MENU STATE START -----------------------------------------------------------------------------------------------
+
 var MainMenu = function(game) {};
 MainMenu.prototype = {
 	
 preload: function() {
 	//image assets
-	game.load.image('box', 'assets/Box.png');
-	game.load.image('ui', 'assets/UI.png');
-	game.load.image('player', 'assets/Player.png');
-	game.load.image('plant', 'assets/Plant.png');
-	game.load.image('lightMode', 'assets/Player_LightMode.png');
+	game.load.path = 'assets/img/';
+	game.load.image('box', 'Box.png');
+	game.load.image('ui', 'UI.png');
+	game.load.image('player', 'Player.png');
+	game.load.image('plant', 'Plant.png');
+	game.load.image('lightMode', 'Player_LightMode.png');
+	game.load.image('platform', 'platform.png');
 
-	//Borrowed from first phaser game, replace post first prototype
-	game.load.image('platform', 'assets/platform.png');
+	//audio setup
+    game.load.path = 'assets/audio/';
+    game.load.audio('pop', 'pop01.mp3');
+    game.load.audio('loop', 'shortambientloop.wav');
+    game.load.audio('oof', 'hurt.mp3');
 	
 	//allows for access to mouse information
 	game.input.mouse.capture = true;
@@ -77,13 +84,16 @@ create: function(){
 	game.stage.backgroundColor = "#228B22";
 	
 	//Adds instruction text
-		game.add.text(16, 16, 'Plant Growing Game', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 68, 'Use arrow keys to move and jump, hold jump for slow fall', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 120, 'Press space to switch forms, while in the other form you can', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 146, 'not move but you will be able to click and drag on the', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 172, 'brown earth to grow platforms!', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 224, 'Try to make it to the platform on the other side!', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 276, 'Press Space to start', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 16, 'Plant Platformer', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 78, 'Use "ARROW KEYS" to move and jump, "HOLD UP" for slow', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 118, 'fall. Press "SPACE" to switch forms, while in the "BLUE" form', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 158, 'you cannot move but you will be able to click and drag on the', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 198, 'brown earth to grow platforms!', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 258, 'If a Plant isnt to your liking, click on the plant and press "R"', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 298, 'to reset it!', { fontSize: '32px', fill: '#000' });
+
+		game.add.text(16, 368, 'Try to make it to the platform on the other side!', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 408, 'Press "SPACE" to start', { fontSize: '32px', fill: '#000' });
 },
 update: function() {
 	if(spaceKey.isDown)
@@ -92,6 +102,10 @@ update: function() {
 		}
 	}
 }
+
+// MAIN MENU STATE END -----------------------------------------------------------------------------------------------
+
+// PLAY STATE START -----------------------------------------------------------------------------------------------
 
 //Gameplay State
 var GamePlay = function(game) {};
@@ -107,8 +121,6 @@ create: function(){
 	//Set world size
 	game.world.setBounds(0, 0, game.width*2, game.height*2);
 
-
-	
 	//Create the plants in positions modeled after the paper prototype
 	createPlant(350, 1200);
 	createPlant(450, 50);
@@ -153,6 +165,21 @@ create: function(){
 	createUIElement(game.camera.width-50, 50, 'ui');
 	createUIElement(game.camera.width-100, 50, 'ui');
 	createUIElement(game.camera.width-150, 50, 'ui');
+
+	//setup for audio stuff
+
+	//jump
+	pop = game.add.audio('pop');
+    pop.volume = 0.5;
+    //pop.allowMultiple = false;
+    //fall off map
+    oof = game.add.audio('oof');
+    oof.volume = 0.1;
+    //background music
+    songLoop = game.add.audio('loop');
+    songLoop.volume = 0.05;
+    songLoop.loop = true;
+    songLoop.play();
 },
 
 update: function()
@@ -197,9 +224,10 @@ update: function()
 	else if (input.right.isDown && !isLightMode)
 		player.body.velocity.x = 150;
 
-	if (input.up.isDown && !isLightMode && player.body.touching.down)//Jumping, works if touching the ground and not in lgiht mode
+	if (input.up.isDown && !isLightMode && player.body.touching.down){//Jumping, works if touching the ground and not in lgiht mode
 		player.body.velocity.y = -225;
-
+		pop.play();
+	}
 /* 	//outdated downwards movement before gravity
 	else if (input.down.isDown && !isLightMode)
 		player.body.velocity.y = 150; */
@@ -219,6 +247,7 @@ update: function()
 
 	//if the player falls to the bottom of the screen it resets them
 	if(player.y > game.world.height-50){
+		oof.play();
 		player.reset(80,50);
 	}
 
@@ -269,9 +298,14 @@ update: function()
     }
 
 	//used for debugging purposes
-	render();
+	//render();
 }
 }
+
+// PLAY STATE END -----------------------------------------------------------------------------------------------
+
+// GAME OVER START -----------------------------------------------------------------------------------------------
+
 //Game over state
 var GameOver = function(game) {};
 GameOver.prototype = {
@@ -293,6 +327,9 @@ GameOver.prototype = {
 		}
 	}
 }
+
+// GAME OVER STATE END -----------------------------------------------------------------------------------------------
+
 
 
 //Global Functions (Might be made local later if only 1 large level is made)
@@ -448,6 +485,10 @@ function resetPlant(activeGroup){
 	}
 }
 }
+
+// STATES -----------------------------------------------------------------------------------------------
+
+
 // add states to StateManager and starts MainMenu
 game.state.add('MainMenu', MainMenu);
 game.state.add('GamePlay', GamePlay);
