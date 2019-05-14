@@ -1,5 +1,5 @@
 //Initialize game
-var game = new Phaser.Game(1000, 800, Phaser.AUTO, 'phaser',);
+var game = new Phaser.Game(2000, 1600, Phaser.AUTO, 'phaser',);
 
 //global variables
 
@@ -43,6 +43,9 @@ var activeGroup;
 //object in this group
 var players;
 
+//Var for level exits/victory
+var exits
+
 // MAIN MENU STATE START -----------------------------------------------------------------------------------------------
 
 var MainMenu = function(game) {};
@@ -57,6 +60,7 @@ preload: function() {
 	game.load.image('plant', 'Plant.png');
 	game.load.image('lightMode', 'Player_LightMode.png');
 	game.load.image('platform', 'platform.png');
+	game.load.image('exit', 'exit.png');
 
 	//audio setup
     game.load.path = 'assets/audio/';
@@ -119,7 +123,7 @@ create: function(){
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 	
 	//Set world size
-	game.world.setBounds(0, 0, game.width*2, game.height*2);
+	game.world.setBounds(0, 0, 2000, 1600);
 
 	//Create the plants in positions modeled after the paper prototype
 	createPlant(350, 1200);
@@ -180,6 +184,13 @@ create: function(){
     songLoop.volume = 0.05;
     songLoop.loop = true;
     songLoop.play();
+	
+	//adds exit
+	exits = game.add.group();
+	exits.enableBody = true;
+	var exit = exits.create(game.world.width - 168, 211, 'exit');
+	
+	
 },
 
 update: function()
@@ -299,6 +310,12 @@ update: function()
 
 	//used for debugging purposes
 	//render();
+	
+	//Goes to game over screen if exit is reached
+	if(game.physics.arcade.collide(player, exits))
+	{
+		game.state.start('GameOver', true, false, 0);
+	}
 }
 }
 
@@ -316,7 +333,7 @@ GameOver.prototype = {
 	
 	//victory and instruction text
 	game.add.text(16, 16, 'You did it!', { fontSize: '32px', fill: '#000' });
-	game.add.text(16, 68, 'You did it!', { fontSize: '32px', fill: '#000' });
+	game.add.text(16, 68, 'Press space to restart.', { fontSize: '32px', fill: '#000' });
 	},
 	
 	update: function()
