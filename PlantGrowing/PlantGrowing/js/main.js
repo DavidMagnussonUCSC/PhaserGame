@@ -1,18 +1,5 @@
-
-var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-
-function preload() 
-{
-	//image assets
-	game.load.image('box', 'assets/Box.png');
-	game.load.image('ui', 'assets/UI.png');
-	game.load.image('player', 'assets/Player.png');
-	game.load.image('plant', 'assets/Plant.png');
-	game.load.image('lightMode', 'assets/Player_LightMode.png');
-
-	//Borrowed from first phaser game, replace post first prototype
-	game.load.image('platform', 'assets/platform.png');
-}
+//Initialize game
+var game = new Phaser.Game(1000, 800, Phaser.AUTO, 'phaser',);
 
 //global variables
 
@@ -56,17 +43,71 @@ var activeGroup;
 //object in this group
 var players;
 
-function create() 
-{
+var MainMenu = function(game) {};
+MainMenu.prototype = {
+	
+preload: function() {
+	//image assets
+	game.load.image('box', 'assets/Box.png');
+	game.load.image('ui', 'assets/UI.png');
+	game.load.image('player', 'assets/Player.png');
+	game.load.image('plant', 'assets/Plant.png');
+	game.load.image('lightMode', 'assets/Player_LightMode.png');
 
+	//Borrowed from first phaser game, replace post first prototype
+	game.load.image('platform', 'assets/platform.png');
+	
+	//allows for access to mouse information
+	game.input.mouse.capture = true;
+	
+	//object to store keyboard inputs
+	input = game.input.keyboard.createCursorKeys();
+
+	//adds spacebar information to spacekey
+	spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+	rKey = game.input.keyboard.addKey(Phaser.Keyboard.R);
+
+	//adds mouse information to mouse
+	mouse = game.input.activePointer;
+},
+
+create: function(){
+	//sets main menu background color to forestgreen
+	game.stage.backgroundColor = "#228B22";
+	
+	//Adds instruction text
+		game.add.text(16, 16, 'Plant Growing Game', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 68, 'Use arrow keys to move and jump, hold jump for slow fall', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 120, 'Press space to switch forms, while in the other form you can', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 146, 'not move but you will be able to click and drag on the', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 172, 'brown earth to grow platforms!', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 224, 'Try to make it to the platform on the other side!', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 276, 'Press Space to start', { fontSize: '32px', fill: '#000' });
+},
+update: function() {
+	if(spaceKey.isDown)
+		{
+			game.state.start('GamePlay', true, false, 0); //Starts the gameplay state if space is held down/pressed
+		}
+	}
+}
+
+//Gameplay State
+var GamePlay = function(game) {};
+GamePlay.prototype = {
+	
+create: function(){
+	//sets game background color to black
+	game.stage.backgroundColor = "#000000"; 
+	
 	//enable arcade physics
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 	
 	//Set world size
 	game.world.setBounds(0, 0, game.width*2, game.height*2);
 
-	//allows for access to mouse information
-	game.input.mouse.capture = true;
+
 	
 	//Create the plants in positions modeled after the paper prototype
 	createPlant(350, 1200);
@@ -103,16 +144,6 @@ function create()
 	player.body.gravity.y = 200;
 	player.body.syncBounds = true;
 
-	//object to store keyboard inputs
-	input = game.input.keyboard.createCursorKeys();
-
-	//adds spacebar information to spacekey
-	spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-
-	rKey = game.input.keyboard.addKey(Phaser.Keyboard.R);
-
-	//adds mouse information to mouse
-	mouse = game.input.activePointer;
 	
 	//Camera follows player
 	game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON, 0.5, 0.5);
@@ -122,9 +153,9 @@ function create()
 	createUIElement(game.camera.width-50, 50, 'ui');
 	createUIElement(game.camera.width-100, 50, 'ui');
 	createUIElement(game.camera.width-150, 50, 'ui');
-}
+},
 
-function update() 
+update: function()
 {
 	//sets player velocity to 0 if nothing is being pressed
 	player.body.velocity.x = 0;
@@ -240,7 +271,31 @@ function update()
 	//used for debugging purposes
 	render();
 }
+}
+//Game over state
+var GameOver = function(game) {};
+GameOver.prototype = {
+	create: function()
+	{
+	//sets main menu background color to a warm red
+	game.stage.backgroundColor = "#cd5c5c";
+	
+	//victory and instruction text
+	game.add.text(16, 16, 'You did it!', { fontSize: '32px', fill: '#000' });
+	game.add.text(16, 68, 'You did it!', { fontSize: '32px', fill: '#000' });
+	},
+	
+	update: function()
+	{
+		if(spaceKey.isDown)
+		{
+			game.state.start('GamePlay', true, false, 0); //Starts the gameplay state if space is held down/pressed
+		}
+	}
+}
 
+
+//Global Functions (Might be made local later if only 1 large level is made)
 
 //creates a plant group and adds 
 //a new initial plant object to the game 
@@ -393,3 +448,8 @@ function resetPlant(activeGroup){
 	}
 }
 }
+// add states to StateManager and starts MainMenu
+game.state.add('MainMenu', MainMenu);
+game.state.add('GamePlay', GamePlay);
+game.state.add('GameOver', GameOver);
+game.state.start('MainMenu');
