@@ -2,7 +2,7 @@
 // https://github.com/DavidMagnussonUCSC/PhaserGame
 
 //Initialize game
-var game = new Phaser.Game(2000, 1600, Phaser.AUTO, 'phaser',);
+var game = new Phaser.Game(1000, 800, Phaser.AUTO, 'phaser',);
 
 //global variables
 
@@ -40,6 +40,8 @@ var cameraScale = 2;
 
 var activeGroup;
 
+var bodyAnchor = 0.5;
+
 //the player needed a group object to belong to
 //so that the getObjectsUnderPointer function
 //could process it. var player should be the only
@@ -55,6 +57,9 @@ var MainMenu = function(game) {};
 MainMenu.prototype = {
 	
 preload: function() {
+
+	game.time.advancedTiming = true;
+
 	//image assets
 	game.load.path = 'assets/img/';
 	game.load.image('box', 'Box.png');
@@ -64,6 +69,7 @@ preload: function() {
 	game.load.image('lightMode', 'Player_LightMode.png');
 	game.load.image('platform', 'platform.png');
 	game.load.image('exit', 'exit.png');
+	game.load.image('fade', 'blackfade.png');
 
 	//audio setup
     game.load.path = 'assets/audio/';
@@ -119,36 +125,28 @@ var GamePlay = function(game) {};
 GamePlay.prototype = {
 	
 create: function(){
+
 	//sets game background color to black
-	game.stage.backgroundColor = "#000000"; 
+	game.stage.backgroundColor = "#000d1a"; 
 	
 	//enable arcade physics
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 	
 	//Set world size
-	game.world.setBounds(0, 0, 2000, 1600);
-
-	//Create the plants in positions modeled after the paper prototype
-	createPlant(350, 1200);
-	createPlant(450, 50);
-	createPlant(675, 610);
-	createPlant(1425, 100);
-	createPlant(1525, 800);
+	game.world.setBounds(0, 0, game.width*2, game.height*2);
 
 	//Adds platforms  Groups and enables physics for them
 	platforms = game.add.group();
 	platforms.enableBody = true;
-	
-	//Creates starting and ending ledge
-	var ledge = platforms.create(-200,125, 'platform');
-	ledge.body.immovable = true;
-	ledge.body.syncBounds = true;
-	//ledge.anchor.set(0.5);
+	createLedge(-200,game.world.height-125, 'platform');
+	createLedge(game.world.width-200, 275, 'platform');
 
-	ledge = platforms.create(game.world.width-200, 275, 'platform');
-	ledge.body.immovable = true;
-	ledge.body.syncBounds = true;
-	//ledge.anchor.set(0.5);
+	//Create the plants in positions modeled after the paper prototype
+	createPlant(350, 1200);
+	createPlant(450, 150);
+	createPlant(675, 610);
+	createPlant(1425, 100);
+	createPlant(1525, 800);
 
 	//makes the player object and adds it to its group
 	//Turns on world boundaries for player
@@ -156,25 +154,19 @@ create: function(){
 	//sets player gravity
 	players = game.add.group();
 	players.enableBody = true;
-	player = players.create(80, 50, 'player');
+	player = players.create(80, game.world.height-250, 'player');
 	player.anchor.set(0.5);
-	player.body.collideWorldBounds = true;
+	//player.body.collideWorldBounds = true;
 	player.body.bounce.y = .02;
 	player.body.gravity.y = 200;
+	player.body.maxVelocity = 0;
 	player.body.syncBounds = true;
 
 	
 	//Camera follows player
 	game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON, 0.5, 0.5);
 
-	//creation of UI elements
-	UIGroup = game.add.group();
-	createUIElement(game.camera.width-50, 50, 'ui');
-	createUIElement(game.camera.width-100, 50, 'ui');
-	createUIElement(game.camera.width-150, 50, 'ui');
-
 	//setup for audio stuff
-
 	//jump
 	pop = game.add.audio('pop');
     pop.volume = 0.5;
@@ -191,7 +183,28 @@ create: function(){
 	//adds exit
 	exits = game.add.group();
 	exits.enableBody = true;
-	var exit = exits.create(game.world.width - 168, 211, 'exit');
+	var exit = exits.create(game.world.width - 50, 210, 'exit');
+	exit.anchor.set(0.5);
+
+	var pit = game.add.sprite(0, game.world.height-200, 'fade');
+	pit.scale.x = 1.1;
+	pit.scale.y = 0.2;
+
+	var wall = game.add.sprite(-32, game.world.height/2, 'box');
+	wall.scale.x = 1.1;
+	wall.scale.y = 75;
+	wall.anchor.set(0.5);
+
+	var wall = game.add.sprite(game.world.width+32, game.world.height/2, 'box');
+	wall.scale.x = 1.1;
+	wall.scale.y = 75;
+	wall.anchor.set(0.5);
+
+	//creation of UI elements
+	UIGroup = game.add.group();
+	createUIElement(game.camera.width-50, 50, 'ui');
+	createUIElement(game.camera.width-100, 50, 'ui');
+	createUIElement(game.camera.width-150, 50, 'ui');
 	
 	
 },
@@ -259,10 +272,38 @@ update: function()
 		player.loadTexture('player');
 	}
 
+	//camera pan
+	if(game.input.keyboard.isDown(Phaser.Keyboard.W)){
+		game.camera.y -= 200;
+	}
+	if(game.input.keyboard.isDown(Phaser.Keyboard.A)){
+		game.camera.x -= 200;
+	}
+	if(game.input.keyboard.isDown(Phaser.Keyboard.S)){
+		game.camera.y += 200;
+	}
+	if(game.input.keyboard.isDown(Phaser.Keyboard.D)){
+		game.camera.x += 200;	
+	}
+
+
 	//if the player falls to the bottom of the screen it resets them
-	if(player.y > game.world.height-50){
+	if(player.y > game.world.height+player.height){
 		oof.play();
-		player.reset(80,50);
+		player.reset(80,game.world.height-250);
+
+		isLightMode =true;
+
+		game.time.events.add(2000, function() { 
+		isLightMode = false;
+
+		//while(cameraScale <= 2 ){
+			//cameraZoomIn();
+		//}
+		//game.add.tween(left).to({ alpha: 0 }, 2000, "Linear", true); 
+		});
+
+		flash(player);
 	}
 
 	/* 	this is the base camera stuff that is super 
@@ -270,12 +311,15 @@ update: function()
 
 	//camera zoom in
 	if(game.input.keyboard.isDown(Phaser.Keyboard.O)){
-		if(cameraScale <= 2){
+		if(cameraScale <= 1.995){
 			game.camera.scale.x += 0.005;
 			game.camera.scale.y += 0.005;
 
             //outdated stuff
             //player.body.setSize((player.width/2)*cameraScale, (player.height/2)*cameraScale);
+            bodyAnchor += 0.005;
+            player.anchor.set(bodyAnchor);
+            console.log(bodyAnchor);
 
             cameraScale += 0.01;
     		//console.log(cameraScale);
@@ -290,7 +334,7 @@ update: function()
     //camera zoom out
     else if(game.input.keyboard.isDown(Phaser.Keyboard.P)){
 
-    	if(cameraScale >= 1){
+    	if(cameraScale >= 1.005){
     		cameraScale -= 0.005;
     		game.camera.scale.x -= 0.005;
     		game.camera.scale.y -= 0.005;
@@ -298,6 +342,10 @@ update: function()
             //outdated stuff
             //player.body.setSize((player.width/2)*cameraScale, (player.height/2)*cameraScale);
             //player.anchor.set(0.5);
+
+            bodyAnchor -= 0.005;
+            player.anchor.set(bodyAnchor);
+            console.log(bodyAnchor);
 
             cameraScale -= 0.005;
     		//console.log(cameraScale);
@@ -312,11 +360,12 @@ update: function()
     }
 
 	//used for debugging purposes
-	//render();
+	render();
 	
 	//Goes to game over screen if exit is reached
 	if(game.physics.arcade.collide(player, exits))
 	{
+		songLoop.destroy();
 		game.state.start('GameOver', true, false, 0);
 	}
 }
@@ -484,6 +533,14 @@ function createUIElement(x, y, pic){
 	uiElement.anchor.set(0.5);
 }
 
+//for creating UI Elements fixed to the camera
+function createLedge(x, y, pic){
+	var ledge = platforms.create(x, y, pic);
+	ledge.body.immovable = true;
+	ledge.body.syncBounds = true;
+	//ledge.anchor.set(0.5);
+}
+
 //used for debug info
 function render() 
 {
@@ -493,7 +550,10 @@ function render()
     game.debug.spriteInfo(player, 32, game.height - 120);
     game.debug.body(player);
 
+    game.debug.text(game.time.fps || '--', 2, 14, "#00ff00"); 
+
 }
+
 function resetPlant(activeGroup){
 	for(i = 0 ; i < plants.length ; i++){
 	if(activeGroup != null && plants[i] === activeGroup){
@@ -504,6 +564,23 @@ function resetPlant(activeGroup){
 		console.log(activeGroup);
 	}
 }
+}
+
+function flash(sprite){
+	//creates the fade out white
+		game.time.events.repeat(125,16,function(){
+			if(sprite.alpha == 0){
+				sprite.alpha = 1;
+			}
+			else if(sprite.alpha == 1){
+				sprite.alpha = 0;
+			}
+		},this);
+        //game.add.tween(sprite).to( { alpha: 0 }, 250, Phaser.Easing.Linear.None, true);
+        
+        
+        
+
 }
 
 // STATES -----------------------------------------------------------------------------------------------
