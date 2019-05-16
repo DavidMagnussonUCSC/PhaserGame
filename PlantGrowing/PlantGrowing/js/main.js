@@ -54,7 +54,10 @@ var zoomLoop;
 var players;
 
 //Var for level exits/victory
-var exits
+var exits;
+
+//has the player hit a plant
+var plantImpacted;
 
 // MAIN MENU STATE START -----------------------------------------------------------------------------------------------
 
@@ -82,6 +85,7 @@ MainMenu.prototype = {
 		game.load.audio('pop', 'pop01.mp3');
 		game.load.audio('loop', 'shortambientloop.wav');
 		game.load.audio('oof', 'hurt.mp3');
+		 game.load.audio('plantImpact', 'Plant.mp3')
 		
 		//allows for access to mouse information
 		game.input.mouse.capture = true;
@@ -186,6 +190,9 @@ GamePlay.prototype = {
 	    songLoop.loop = true;
 	    songLoop.play();
 
+	    //sound when landing on plants
+		plantImpact = game.add.audio('plantImpact');
+
 		//adds exit door at the end of the level to trigger GameOver
 		exits = game.add.group();
 		exits.enableBody = true;
@@ -245,7 +252,7 @@ GamePlay.prototype = {
 		//collision detection for player and plants
 		//collision detection for ground/platforms and player
 		//collision detection for walls
-		game.physics.arcade.collide(player, plants);
+		game.physics.arcade.collide(player, plants, plantSound);
 		game.physics.arcade.collide(player, platforms);
 		game.physics.arcade.collide(player, walls);
 
@@ -278,6 +285,7 @@ GamePlay.prototype = {
 		if (input.up.isDown && !isLightMode && player.body.touching.down){
 			player.body.velocity.y = -225;
 			pop.play();
+			plantImpacted = false;
 		}
 
 		//upon pressing the spacebar, you can alternate
@@ -493,6 +501,17 @@ function inRange(number, low, high){
 		return false;
 	}
 
+}
+
+function plantSound(player){
+
+	//once a plant is touched by the player,
+	//a flag will change to prevent looping the sound
+	if(!plantImpacted)
+	{
+		plantImpact.play();
+		plantImpacted = true;
+	}
 }
 
 //checks to see if the mouse is on the player
