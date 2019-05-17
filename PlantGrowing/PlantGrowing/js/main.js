@@ -9,6 +9,9 @@ var game = new Phaser.Game(1000, 800, Phaser.AUTO, 'phaser',);
 //an array that holds all the plant groups
 var plants = [];
 
+//an array that holds standable on plant matter
+var plantMatter = []
+
 //this is used in various functions to temporarily
 //store a plant
 var plant;
@@ -79,6 +82,7 @@ MainMenu.prototype = {
 		game.load.image('platform', 'platform.png');
 		game.load.image('exit', 'exit.png');
 		game.load.image('fade', 'blackfade.png');
+		game.load.image('highlight', 'PlantHighlight.png');
 
 		//audio setup/assets
 		game.load.path = 'assets/audio/';
@@ -252,7 +256,7 @@ GamePlay.prototype = {
 		//collision detection for player and plants
 		//collision detection for ground/platforms and player
 		//collision detection for walls
-		game.physics.arcade.collide(player, plants, plantSound);
+		game.physics.arcade.collide(player, plantMatter, plantSound);
 		game.physics.arcade.collide(player, platforms);
 		game.physics.arcade.collide(player, walls);
 
@@ -418,8 +422,16 @@ function identifyPlantGroup(plantGroup){
 
 	if(game.physics.arcade.overlap(plant, plantGroup))
 	{
+		console.log(activeGroup);
+		//NOTE: if I dont add the second check, a reset plant bottom/base will have getBottom be undefined. I want to understand why - David
+		if (activeGroup != undefined && activeGroup.getBottom() != undefined)
+			activeGroup.getBottom().loadTexture('plant'); //resets the highlighted plant group's texture
+		
 		plant.destroy();
 		activeGroup = plantGroup;
+		
+		//Highlights the selected plant base
+		plantGroup.getBottom().loadTexture('highlight');
 	}
 	else{
 		plant.destroy();
@@ -465,6 +477,7 @@ function growPlant(plantGroup){
 				if(plantGroup.total == 100){
 					plant.tint = 0xffff00;
 				}
+				plantMatter.push(plant);
 			}
 			else
 				plant.destroy();
@@ -574,6 +587,7 @@ function resetPlant(activeGroup){
 
 	for(i = 0 ; i < plants.length ; i++){
 		if(activeGroup != null && plants[i] === activeGroup){
+
 			var temp = activeGroup.getBottom();
 			activeGroup.destroy();
 			createPlant(temp.x,temp.y);
