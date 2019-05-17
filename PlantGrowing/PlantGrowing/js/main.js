@@ -402,7 +402,7 @@ function createPlant(x, y){
 	plant.body.immovable = true;
 	plant.anchor.set(0.5);
 	plant.body.syncBounds = true;
-
+	plant.alpha = 0.5; //to make more clear these can't be stood on
 	//adds the new plant group to the array of plants
 	plants.push(plantGroup);
 }
