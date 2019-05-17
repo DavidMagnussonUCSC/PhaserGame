@@ -62,6 +62,8 @@ var exits;
 //has the player hit a plant
 var plantImpacted;
 
+var cameraMoving = true;
+
 // MAIN MENU STATE START -----------------------------------------------------------------------------------------------
 
 var MainMenu = function(game) {};
@@ -111,16 +113,39 @@ MainMenu.prototype = {
 		game.stage.backgroundColor = "#228B22";
 		
 		//Adds instruction text
-		game.add.text(16, 16, 'Plant Platformer', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 78, 'Use "ARROW KEYS" to move and jump, "HOLD UP" for slow', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 118, 'fall. Press "SPACE" to switch forms, while in the "BLUE" form', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 158, 'you cannot move but you will be able to click and drag on the', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 198, 'brown earth to grow platforms!', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 258, 'If a Plant isnt to your liking, click on the plant and press "R"', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 298, 'to reset it!', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(16, 18, 'Plant Platformer', { fontSize: '32px', fill: '#000'});
+		text.addColor('#fff', 0);
 
-		game.add.text(16, 368, 'Try to make it to the platform on the other side!', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 408, 'Press "SPACE" to start', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(16, 108, '* Use the "ARROW KEYS" to move and jump, Hold the "UP"', { fontSize: '32px', fill: '#000' });
+		//  And now we'll color in some of the letters
+    	text.addColor('#ffff00', 10);
+    	text.addColor('#000', 23);
+    	text.addColor('#ffff00', 50);
+		var text = game.add.text(16, 148, '  key while falling for a slow descent. ', { fontSize: '32px', fill: '#000' });
+
+		var text = game.add.text(16, 208, '* Press "SPACE" to switch forms. While in the "BLUE"', { fontSize: '32px', fill: '#000' });
+		text.addColor('#ffff00', 8);
+		text.addColor('#000', 15);
+		text.addColor('#0000FF', 45);
+		var text = game.add.text(16, 248, '  form you cannot move but you will be able to click', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(16, 288, '  and drag on the brown earth to grow platforms!', { fontSize: '32px', fill: '#000' });
+		
+		var text = game.add.text(16, 358, '* If a Plant isnt to your liking, click on the plant', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(16, 398, '  and press "R" to reset your most recent active plant! ', { fontSize: '32px', fill: '#000' });
+		text.addColor('#ffff00', 12);
+		text.addColor('#000', 15);
+		var text = game.add.text(16, 438, '  (plant highlighted by yellow)', { fontSize: '32px', fill: '#000' });
+
+		var text = game.add.text(16, 508, "* If you can't see whats ahead, \"PEEK\" the Camera ", { fontSize: '32px', fill: '#000' });
+		text.addColor('#ffff00', 31);
+		text.addColor('#000', 39);
+		var text = game.add.text(16, 548, '  using "W,A,S,D" to nudge the camera just a little.', { fontSize: '32px', fill: '#000' });
+		text.addColor('#ffff00', 8);
+		text.addColor('#000', 17);
+
+		var text = game.add.text(16, 678, 'Try to make it to the platform on the other side!', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(16, 718, 'Press "SPACE" to start', { fontSize: '32px', fill: '#000' });
+		text.addColor('#fff', 0);
 	},
 
 	update: function() {
@@ -196,6 +221,7 @@ GamePlay.prototype = {
 
 	    //sound when landing on plants
 		plantImpact = game.add.audio('plantImpact');
+		plantImpact.volume = 0.05;
 
 		//adds exit door at the end of the level to trigger GameOver
 		exits = game.add.group();
@@ -220,9 +246,9 @@ GamePlay.prototype = {
 
 		//creation of UI elements
 		UIGroup = game.add.group();
-		createUIElement(game.camera.width-50, 50, 'ui');
-		createUIElement(game.camera.width-100, 50, 'ui');
-		createUIElement(game.camera.width-150, 50, 'ui');
+		//createUIElement(game.camera.width-50, 50, 'ui');
+		//createUIElement(game.camera.width-100, 50, 'ui');
+		//createUIElement(game.camera.width-150, 50, 'ui');
 
 
 		//keeps player from moving during the zoom out/zoom inu until time has passed
@@ -231,11 +257,12 @@ GamePlay.prototype = {
 		game.time.events.add(2000, function() { 
 			zoomLoop = game.time.events.repeat(10, 200, cameraZoomOut, this);
 		});
-		game.time.events.add(7000, function() { 
+		game.time.events.add(7500, function() { 
 			zoomLoop = game.time.events.repeat(10, 200, cameraZoomIn, this);
 		});
-		game.time.events.add(9000, function() { 
+		game.time.events.add(10500, function() { 
 			isLightMode = false;
+			cameraMoving = false;
 		});
 	
 	
@@ -248,7 +275,7 @@ GamePlay.prototype = {
 		//player.body.velocity.y = 0; removed so gravity works
 		
 		//if UP is held while falling, it makes a "floaty" fall
-		if(player.body.velocity.y > 50 && input.up.isDown)
+		if(player.body.velocity.y > 50 && input.up.isDown && !cameraMoving)
 		{
 			player.body.velocity.y = 50;
 		}
@@ -265,7 +292,7 @@ GamePlay.prototype = {
 		//through all existing plant groups to see
 		//which one is being clicked, so that the 
 		//right plant will grow
-		if (game.input.activePointer.isDown){
+		if (game.input.activePointer.isDown && !cameraMoving){
 			plants.forEach(identifyPlantGroup);
 			if(activeGroup != undefined){
 				//console.log(activeGroup);
@@ -274,19 +301,19 @@ GamePlay.prototype = {
 		}
 
 		//resets plant to original state
-		if(rKey.downDuration(1)){
+		if(rKey.downDuration(1) && !cameraMoving){
 			resetPlant(activeGroup);
 		}
 
 		//the following if/else statements allows for player movement
-		if (input.left.isDown && !isLightMode)
+		if (input.left.isDown && !isLightMode && !cameraMoving)
 			player.body.velocity.x = -150;
 
-		else if (input.right.isDown && !isLightMode)
+		else if (input.right.isDown && !isLightMode && !cameraMoving)
 			player.body.velocity.x = 150;
 
 		//Jumping, works if touching the ground and not in light mode
-		if (input.up.isDown && !isLightMode && player.body.touching.down){
+		if (input.up.isDown && !isLightMode && player.body.touching.down && !cameraMoving){
 			player.body.velocity.y = -225;
 			pop.play();
 			plantImpacted = false;
@@ -294,12 +321,12 @@ GamePlay.prototype = {
 
 		//upon pressing the spacebar, you can alternate
 		//from player mode and light mode as long as player is on a surface
-		if (spaceKey.downDuration(1) && !isLightMode && player.body.touching.down)
+		if (spaceKey.downDuration(1) && !isLightMode && player.body.touching.down && !cameraMoving)
 		{
 			isLightMode = true;
 			player.loadTexture('lightMode');
 		}
-		else if(spaceKey.downDuration(1) && isLightMode)
+		else if(spaceKey.downDuration(1) && isLightMode && !cameraMoving)
 		{
 			isLightMode = false;
 			player.loadTexture('player');
@@ -307,16 +334,16 @@ GamePlay.prototype = {
 
 
 		//camera panning using W,A,S,D to allow players to peek around things they cant see
-		if(game.input.keyboard.isDown(Phaser.Keyboard.W)){
+		if(game.input.keyboard.isDown(Phaser.Keyboard.W) && !cameraMoving){
 			game.camera.y -= 200;
 		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.A)){
+		if(game.input.keyboard.isDown(Phaser.Keyboard.A) && !cameraMoving){
 			game.camera.x -= 200;
 		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.S)){
+		if(game.input.keyboard.isDown(Phaser.Keyboard.S) && !cameraMoving){
 			game.camera.y += 200;
 		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.D)){
+		if(game.input.keyboard.isDown(Phaser.Keyboard.D) && !cameraMoving){
 			game.camera.x += 200;	
 		}
 
@@ -378,7 +405,7 @@ GameOver.prototype = {
 	update: function(){
 
 		if(spaceKey.isDown){
-				game.state.start('GamePlay', true, false, 0); //Starts the gameplay state if space is held down/pressed
+				game.state.start('MainMenu', true, false, 0); //Starts the gameplay state if space is held down/pressed
 		}
 	
 	}
