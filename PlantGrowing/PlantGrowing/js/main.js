@@ -207,21 +207,22 @@ Tutorial.prototype = {
 
 	    //sound when landing on plants
 		plantImpact = game.add.audio('plantImpact');
-		plantImpact.volume = 0.05;
+		plantImpact.volume = 0.5;
 
 		//Adds platforms Group and enables physics for them
 		platforms = game.add.group();
 		platforms.enableBody = true;
-		createLedge(-200,game.world.height-125, 'platform');
-		createLedge(200, game.world.height-125, 'platform');
-		createLedge(632, game.world.height-221, 'platform');
-		createLedge(1064, game.world.height-317, 'platform');
-		createLedge(1464, game.world.height-317, 'platform');
-		createLedge(2450, game.world.height-200, 'platform');
-		createLedge(2850, game.world.height-200, 'platform');
-		createLedge(3582, game.world.height-532, 'platform');
-		createLedge(3982, game.world.height-532, 'platform');
-		createLedge(5210, game.world.height-532, 'platform');
+		createLedge(-200,game.world.height-125, 'platform', 1, 1);
+		createLedge(200, game.world.height-125, 'platform', 1, 1);
+		createLedge(632, game.world.height-221, 'platform', 1, 1);
+		createLedge(1064, game.world.height-317, 'platform', 1, 1);
+		createLedge(1464, game.world.height-317, 'platform', 1, 1);
+		createLedge(2450, game.world.height-200, 'platform', 1, 1);
+		createLedge(2850, game.world.height-200, 'platform', 1, 1);
+		createLedge(3582, game.world.height-532, 'platform', 1, 1);
+		createLedge(3982, game.world.height-532, 'platform', 1, 1);
+		createLedge(5750, game.world.height-532, 'platform', 1, 1);
+		createLedge(4760, game.world.height-630, 'platform', 0.25, 1);
 
 		//Create the plants in positions modeled after the paper prototype(some modifications)
 		createPlant(3550, game.world.height - 500);
@@ -247,7 +248,6 @@ Tutorial.prototype = {
 		//creates the walls as a passage block (seen on screen)
 		createWall(600, game.world.height-221, 'box', 1, 4);
 		createWall(1032, game.world.height-317, 'box', 1, 4);
-		createWall(4682, game.world.height - 500, 'box', 2, 4);
 
 		//Tutorial Text
 		game.add.text(32, game.world.height - 600, 'Use arrow keys to move', { fontSize: '32px', fill: '#000' });
@@ -266,12 +266,12 @@ Tutorial.prototype = {
 		game.add.text(4200, game.world.height - 480	, 'You can grow a plant, reset it (R), and', { fontSize: '22px', fill: '#000' });
 		game.add.text(4200, game.world.height - 450	, 'grow it another way to progress!', { fontSize: '22px', fill: '#000' });
 		game.add.text(4200, game.world.height - 420	, 'Try it now!', { fontSize: '22px', fill: '#000' });
-		game.add.text(5500, game.world.height - 800	, 'Good job, and good luck!', { fontSize: '22px', fill: '#000' });
+		game.add.text(5800, game.world.height - 800	, 'Good job, and good luck!', { fontSize: '22px', fill: '#000' });
 		
 		//Adds tutorial exit
 		exits = game.add.group();
 		exits.enableBody = true;
-		var exit = exits.create(5500, 1000, 'exit');
+		var exit = exits.create(5900, 1000, 'exit');
 		exit.anchor.set(0.5);
 		
 		//creation of UI elements
@@ -446,8 +446,8 @@ GamePlay.prototype = {
 		//Adds platforms Group and enables physics for them
 		platforms = game.add.group();
 		platforms.enableBody = true;
-		createLedge(-200,game.world.height-125, 'platform');
-		createLedge(game.world.width-175, 275, 'platform');
+		createLedge(-200,game.world.height-125, 'platform', 1, 1);
+		createLedge(game.world.width-175, 275, 'platform', 1, 1);
 
 		//Create the plants in positions modeled after the paper prototype(some modifications)
 		createPlant(350, 1200);
@@ -834,9 +834,12 @@ function createUIElement(x, y, pic){
 }
 
 //for creating UI Elements fixed to the camera
-function createLedge(x, y, pic){
+function createLedge(x, y, pic, scaleX, scaleY){
 
 	var ledge = platforms.create(x, y, pic);
+	ledge.scale.x = scaleX;
+	ledge.scale.y = scaleY;
+
 	ledge.body.immovable = true;
 	ledge.body.syncBounds = true;
 	//ledge.anchor.set(0.5);
