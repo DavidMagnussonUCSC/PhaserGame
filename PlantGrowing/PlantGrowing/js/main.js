@@ -9,6 +9,9 @@ var game = new Phaser.Game(1000, 800, Phaser.AUTO, 'phaser',);
 //an array that holds all the plant groups
 var plants = [];
 
+//an array that holds standable on plant matter
+var plantMatter = []
+
 //this is used in various functions to temporarily
 //store a plant
 var plant;
@@ -54,7 +57,15 @@ var zoomLoop;
 var players;
 
 //Var for level exits/victory
-var exits
+var exits;
+
+//has the player hit a plant
+var plantImpacted;
+
+var cameraMoving = true;
+
+//Var for level exits/victory
+var invisCameraBody;
 
 // MAIN MENU STATE START -----------------------------------------------------------------------------------------------
 
@@ -76,12 +87,14 @@ MainMenu.prototype = {
 		game.load.image('platform', 'platform.png');
 		game.load.image('exit', 'exit.png');
 		game.load.image('fade', 'blackfade.png');
+		game.load.image('highlight', 'PlantHighlight.png');
 
 		//audio setup/assets
 		game.load.path = 'assets/audio/';
 		game.load.audio('pop', 'pop01.mp3');
 		game.load.audio('loop', 'shortambientloop.wav');
 		game.load.audio('oof', 'hurt.mp3');
+		 game.load.audio('plantImpact', 'Plant.mp3')
 		
 		//allows for access to mouse information
 		game.input.mouse.capture = true;
@@ -103,23 +116,44 @@ MainMenu.prototype = {
 		game.stage.backgroundColor = "#228B22";
 		
 		//Adds instruction text
-		game.add.text(16, 16, 'Plant Platformer', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 78, 'Use "ARROW KEYS" to move and jump, "HOLD UP" for slow', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 118, 'fall. Press "SPACE" to switch forms, while in the "BLUE" form', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 158, 'you cannot move but you will be able to click and drag on the', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 198, 'brown earth to grow platforms!', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 258, 'If a Plant isnt to your liking, click on the plant and press "R"', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 298, 'to reset it!', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(16, 18, 'Plant Platformer', { fontSize: '32px', fill: '#000'});
+		text.addColor('#fff', 0);
 
-		game.add.text(16, 368, 'Try to make it to the platform on the other side!', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 408, 'Press "SPACE" to start', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(16, 108, '* Use the "W,A,S,D" to move and jump, Hold the "W"', { fontSize: '32px', fill: '#000' });
+		//  And now we'll color in some of the letters
+    	text.addColor('#ffff00', 10);
+    	text.addColor('#000', 20);
+    	text.addColor('#ffff00', 50);
+		var text = game.add.text(16, 148, '  key while falling for a slow descent. ', { fontSize: '32px', fill: '#000' });
+
+		var text = game.add.text(16, 208, '* Press "SPACE" to switch forms. While in the "BLUE"', { fontSize: '32px', fill: '#000' });
+		text.addColor('#ffff00', 8);
+		text.addColor('#000', 15);
+		text.addColor('#0000FF', 45);
+		var text = game.add.text(16, 248, '  form you cannot move but you will be able to click', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(16, 288, '  and drag on the brown earth to grow platforms!', { fontSize: '32px', fill: '#000' });
+		
+		var text = game.add.text(16, 358, '* If a Plant isnt to your liking, click on the plant', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(16, 398, '  and press "R" to reset your most recent active plant! ', { fontSize: '32px', fill: '#000' });
+		text.addColor('#ffff00', 12);
+		text.addColor('#000', 15);
+		var text = game.add.text(16, 438, '  (plant highlighted by yellow)', { fontSize: '32px', fill: '#000' });
+
+		var text = game.add.text(16, 508, "* While the holding SHIFT, PEEK the Camera ", { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(16, 548, '  using "W,A,S,D" to nudge the camera just a little.', { fontSize: '32px', fill: '#000' });
+		text.addColor('#ffff00', 8);
+		text.addColor('#000', 17);
+
+		var text = game.add.text(16, 678, 'Try to make it to the platform on the other side!', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(16, 718, 'Press "SPACE" to start', { fontSize: '32px', fill: '#000' });
+		text.addColor('#fff', 0);
 	},
 
 	update: function() {
 		if(spaceKey.isDown)
 		{
 			//Starts the gameplay state if space is held down/pressed
-			game.state.start('GamePlay', true, false, 0);
+			game.state.start('Tutorial', true, false, 0);
 		}
 	}
 }
@@ -127,6 +161,251 @@ MainMenu.prototype = {
 // MAIN MENU STATE END -----------------------------------------------------------------------------------------------
 
 // PLAY STATE START -----------------------------------------------------------------------------------------------
+
+//TUTORIAL State
+var Tutorial = function(game) {};
+Tutorial.prototype = {
+	
+	create: function(){
+		//sets game background color to navy blue
+		game.stage.backgroundColor = "#add8e6"; 
+		
+		//enable arcade physics
+		game.physics.startSystem(Phaser.Physics.ARCADE);
+		
+		//Set game world size to double the viewable area of the game
+		game.world.setBounds(0, 0, game.width*7, game.height*2);
+		
+		//makes the player object and adds it to its group
+		//adds bounce to the player
+		//sets player gravity
+		players = game.add.group();
+		players.enableBody = true;
+		player = players.create(164, game.world.height-250, 'player');
+		player.anchor.set(0.5);
+		player.body.bounce.y = .02;
+		player.body.gravity.y = 200;
+		player.body.maxVelocity = 0;
+		player.body.syncBounds = true;
+
+		invisCameraBody = game.add.sprite(player.x, player.y, 'box');
+		invisCameraBody.enableBody = true;
+		invisCameraBody.alpha = 0;
+		invisCameraBody.anchor.set(0.5);
+		
+		//Camera follows player
+		game.camera.follow(invisCameraBody, Phaser.Camera.FOLLOW_LOCKON, 0.5, 0.5);
+		//game.camera.deadzone = new Phaser.Rectangle(10, 10, 10, 10);
+		
+		//setup for audio stuff
+		//temp audio for jump
+		pop = game.add.audio('pop');
+		pop.volume = 0.5;
+	   
+	    //temp audio fall off map sound
+	    oof = game.add.audio('oof');
+	    oof.volume = 0.1;
+
+	    //temp audio looping background music
+	    songLoop = game.add.audio('loop');
+	    songLoop.volume = 0.05;
+	    songLoop.loop = true;
+	    songLoop.play();
+
+	    //sound when landing on plants
+		plantImpact = game.add.audio('plantImpact');
+		plantImpact.volume = 0.5;
+
+		//Adds platforms Group and enables physics for them
+		platforms = game.add.group();
+		platforms.enableBody = true;
+		createLedge(-200,game.world.height-125, 'platform', 1, 1);
+		createLedge(200, game.world.height-125, 'platform', 1, 1);
+		createLedge(632, game.world.height-221, 'platform', 1, 1);
+		createLedge(1064, game.world.height-317, 'platform', 1, 1);
+		createLedge(1464, game.world.height-317, 'platform', 1, 1);
+		createLedge(2450, game.world.height-200, 'platform', 1, 1);
+		createLedge(2850, game.world.height-200, 'platform', 1, 1);
+		createLedge(3582, game.world.height-532, 'platform', 1, 1);
+		createLedge(3982, game.world.height-532, 'platform', 1, 1);
+		createLedge(5750, game.world.height-532, 'platform', 1, 1);
+		createLedge(4760, game.world.height-630, 'platform', 0.25, 1);
+
+		//Create the plants in positions modeled after the paper prototype(some modifications)
+		createPlant(3550, game.world.height - 516);
+		createPlant(4810, game.world.height - 580);
+
+		//temp sprite to make it look like a pit at the botom of the screen
+		var pit = game.add.sprite(0, game.world.height-200, 'fade');
+		pit.scale.x = 10; //improvised extension for tutorial
+		pit.scale.y = 0.2;
+
+		//these are acting as the boundary around the game (off screen)
+		walls = game.add.group();
+		walls.enableBody = true;
+		createWall(-32, -game.world.height/2, 'box', 1, 75);
+		createWall(game.world.width+32, -game.world.height/2, 'box', 1, 75);
+
+		//creates the walls as a passage block (seen on screen)
+		createWall(600, game.world.height-221, 'box', 1, 4);
+		createWall(1032, game.world.height-317, 'box', 1, 4);
+
+		//Tutorial Text
+		game.add.text(32, game.world.height - 600, 'Use W,A,S,D to move', { fontSize: '32px', fill: '#000' });
+		game.add.text(32, game.world.height - 500, 'Use the W arrow to jump! (Hold for slow fall)', { fontSize: '32px', fill: '#000' });
+		game.add.text(1150, game.world.height - 600, 'You can peek the camera to view things a bit away!', { fontSize: '32px', fill: '#000' });
+		game.add.text(1150, game.world.height - 500, 'While Blue, Use the WASD keys to peek the camera', { fontSize: '32px', fill: '#000' });
+		game.add.text(2100, game.world.height - 600, 'Jump off the edge and hold the jump', { fontSize: '22px', fill: '#000' });
+		game.add.text(2100, game.world.height - 550, 'key to slow fall to this platform!', { fontSize: '22px', fill: '#000' });
+		game.add.text(3300, game.world.height - 400, 'Press space to swap into unmoving plant growing form!', { fontSize: '16px', fill: '#000' });
+		game.add.text(3300, game.world.height - 325, 'While in this form, click and drag on roots', { fontSize: '16px', fill: '#000' });
+		game.add.text(3300, game.world.height - 300, 'to grow plant platforms!', { fontSize: '16px', fill: '#000' });
+		game.add.text(3300, game.world.height - 225, '(If you mess up, press R to reset the last', { fontSize: '16px', fill: '#000' });
+		game.add.text(3300, game.world.height - 200, 'clicked plants)', { fontSize: '16px', fill: '#000' });
+		game.add.text(3300, game.world.height - 150, '(Unfortunately, roots cannot be stood on as', { fontSize: '16px', fill: '#000' });
+		game.add.text(3300, game.world.height - 125, 'they are too fragile', { fontSize: '16px', fill: '#000' });
+		game.add.text(4200, game.world.height - 480	, 'You can grow a plant, reset it (R), and', { fontSize: '22px', fill: '#000' });
+		game.add.text(4200, game.world.height - 450	, 'grow it another way to progress!', { fontSize: '22px', fill: '#000' });
+		game.add.text(4200, game.world.height - 420	, 'Try it now!', { fontSize: '22px', fill: '#000' });
+		game.add.text(5800, game.world.height - 800	, 'Good job, and good luck!', { fontSize: '22px', fill: '#000' });
+		
+		//adds exit door at the end of the level to trigger GameOver
+		exits = game.add.group();
+		exits.enableBody = true;
+		var exit = exits.create(5900, 1000, 'exit');
+		exit.anchor.set(0.5);
+		
+		//creation of UI elements
+		UIGroup = game.add.group();
+		createUIElement(game.camera.width-50, 50, 'ui');
+		createUIElement(game.camera.width-100, 50, 'ui');
+		createUIElement(game.camera.width-150, 50, 'ui');
+
+
+		/* //keeps player from moving during the zoom out/zoom inu until time has passed
+		//the timing on how the camera zooms in/zooms out
+		isLightMode = true;
+		game.time.events.add(2000, function() { 
+			zoomLoop = game.time.events.repeat(10, 200, cameraZoomOut, this);
+		});
+		game.time.events.add(7000, function() { 
+			zoomLoop = game.time.events.repeat(10, 200, cameraZoomIn, this);
+		});
+		game.time.events.add(9000, function() { 
+			isLightMode = false;
+		}); */
+	
+	
+	},
+	
+	update: function(){
+
+		invisCameraBody.x = player.x;
+		invisCameraBody.y = player.y;
+
+		//sets player velocity to 0 if nothing is being pressed
+		player.body.velocity.x = 0;
+		//player.body.velocity.y = 0; removed so gravity works
+
+		//collision detection for player and plants
+		//collision detection for ground/platforms and player
+		//collision detection for walls
+		game.physics.arcade.collide(player, plantMatter, plantSound);
+		game.physics.arcade.collide(player, platforms);
+		game.physics.arcade.collide(player, walls);
+
+		//isDown will be true if the left click
+		//is down. The forEach function will browse
+		//through all existing plant groups to see
+		//which one is being clicked, so that the 
+		//right plant will grow
+		if (game.input.activePointer.isDown && isLightMode){
+			plants.forEach(identifyPlantGroup);
+			if(activeGroup != undefined){
+				//console.log(activeGroup);
+				growPlant(activeGroup);
+			}
+		}
+
+		//resets plant to original state
+		if(rKey.downDuration(1)){
+			resetPlant(activeGroup);
+		}
+
+		//upon pressing the spacebar, you can alternate
+		//from player mode and light mode as long as player is on a surface
+		if (spaceKey.downDuration(1) && player.body.touching.down && isLightMode == false)
+		{
+			isLightMode = true;
+			player.loadTexture('lightMode');
+		}
+		else if(spaceKey.downDuration(1) && isLightMode == true){
+			isLightMode = false;
+			player.loadTexture('player');
+		}
+
+		if(isLightMode == true){
+			//camera Panning
+			cameraPanControls();
+		}
+		else{
+			//the following if/else statements allows for player movement
+			if (game.input.keyboard.isDown(Phaser.Keyboard.A) && !isLightMode)
+				player.body.velocity.x = -150;
+
+			else if (game.input.keyboard.isDown(Phaser.Keyboard.D) && !isLightMode)
+				player.body.velocity.x = 150;
+
+			//Jumping, works if touching the ground and not in light mode
+			if (game.input.keyboard.isDown(Phaser.Keyboard.W) && !isLightMode && player.body.touching.down){
+				player.body.velocity.y = -225;
+				pop.play();
+				plantImpacted = false;
+			}
+		}
+
+		//if UP is held while falling, it makes a "floaty" fall
+		if(player.body.velocity.y > 50 && game.input.keyboard.isDown(Phaser.Keyboard.W))
+		{
+			player.body.velocity.y = 50;
+		}
+
+		//if the player falls to the bottom of the screen it resets them to starting point
+		//flashes the player for a couple seconds
+		if(player.y > game.world.height+player.height){
+			oof.play();
+			
+			player.reset(164,game.world.height-250);
+
+			isLightMode = true;
+
+			game.time.events.add(2000, function() { 
+				isLightMode = false;
+			});
+
+			flash(player);
+		}
+
+		//manual camera zoom in
+		if(game.input.keyboard.isDown(Phaser.Keyboard.O)){
+			zoomLoop = game.time.events.repeat(10, 150, cameraZoomIn, this);
+	    }
+	    //manual camera zoom out
+	    if(game.input.keyboard.isDown(Phaser.Keyboard.P)){
+	    	zoomLoop = game.time.events.repeat(10, 150, cameraZoomOut, this);
+	    }
+		
+		//Goes to game over screen if exit is reached
+		if(game.physics.arcade.collide(player, exits))
+		{
+			songLoop.destroy();
+			game.state.start('GamePlay', true, false, 0);
+		}
+
+		//used for debugging purposes
+		render();
+	}
+}
 
 //Gameplay State
 var GamePlay = function(game) {};
@@ -142,20 +421,7 @@ GamePlay.prototype = {
 		
 		//Set game world size to double the viewable area of the game
 		game.world.setBounds(0, 0, game.width*2, game.height*2);
-
-		//Adds platforms Group and enables physics for them
-		platforms = game.add.group();
-		platforms.enableBody = true;
-		createLedge(-200,game.world.height-125, 'platform');
-		createLedge(game.world.width-175, 275, 'platform');
-
-		//Create the plants in positions modeled after the paper prototype(some modifications)
-		createPlant(350, 1200);
-		createPlant(450, 110);
-		createPlant(675, 610);
-		createPlant(1425, 100);
-		createPlant(1525, 800);
-
+		
 		//makes the player object and adds it to its group
 		//adds bounce to the player
 		//sets player gravity
@@ -168,8 +434,32 @@ GamePlay.prototype = {
 		player.body.maxVelocity = 0;
 		player.body.syncBounds = true;
 
+		invisCameraBody = game.add.sprite(player.x, player.y, 'box');
+		invisCameraBody.enableBody = true;
+		invisCameraBody.alpha = 0;
+		invisCameraBody.anchor.set(0.5);
+		
 		//Camera follows player
-		game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON, 0.5, 0.5);
+		game.camera.follow(invisCameraBody,Phaser.Camera.FOLLOW_LOCKON, 0.5, 0.5);
+
+		//Adds platforms Group and enables physics for them
+		platforms = game.add.group();
+		platforms.enableBody = true;
+		createLedge(-200,game.world.height-125, 'platform', 1, 1);
+		createLedge(game.world.width-175, 275, 'platform', 1, 1);
+
+		//Create the plants in positions modeled after the paper prototype(some modifications)
+		createPlant(350, 1200);
+		createPlant(450, 110);
+		createPlant(675, 610);
+		createPlant(1425, 100);
+		createPlant(1525, 800);
+
+		//adds exit door at the end of the level to trigger GameOver
+		exits = game.add.group();
+		exits.enableBody = true;
+		var exit = exits.create(game.world.width - 100, 210, 'exit');
+		exit.anchor.set(0.5);
 
 		//setup for audio stuff
 		//temp audio for jump
@@ -185,6 +475,10 @@ GamePlay.prototype = {
 	    songLoop.volume = 0.05;
 	    songLoop.loop = true;
 	    songLoop.play();
+
+	    //sound when landing on plants
+		plantImpact = game.add.audio('plantImpact');
+		plantImpact.volume = 0.05;
 
 		//adds exit door at the end of the level to trigger GameOver
 		exits = game.add.group();
@@ -209,9 +503,9 @@ GamePlay.prototype = {
 
 		//creation of UI elements
 		UIGroup = game.add.group();
-		createUIElement(game.camera.width-50, 50, 'ui');
-		createUIElement(game.camera.width-100, 50, 'ui');
-		createUIElement(game.camera.width-150, 50, 'ui');
+		//createUIElement(game.camera.width-50, 50, 'ui');
+		//createUIElement(game.camera.width-100, 50, 'ui');
+		//createUIElement(game.camera.width-150, 50, 'ui');
 
 
 		//keeps player from moving during the zoom out/zoom inu until time has passed
@@ -220,11 +514,12 @@ GamePlay.prototype = {
 		game.time.events.add(2000, function() { 
 			zoomLoop = game.time.events.repeat(10, 200, cameraZoomOut, this);
 		});
-		game.time.events.add(7000, function() { 
+		game.time.events.add(7500, function() { 
 			zoomLoop = game.time.events.repeat(10, 200, cameraZoomIn, this);
 		});
-		game.time.events.add(9000, function() { 
+		game.time.events.add(10500, function() { 
 			isLightMode = false;
+			cameraMoving = false;
 		});
 	
 	
@@ -232,20 +527,17 @@ GamePlay.prototype = {
 
 	update: function(){
 
+		invisCameraBody.x = player.x;
+		invisCameraBody.y = player.y;
+
 		//sets player velocity to 0 if nothing is being pressed
 		player.body.velocity.x = 0;
 		//player.body.velocity.y = 0; removed so gravity works
-		
-		//if UP is held while falling, it makes a "floaty" fall
-		if(player.body.velocity.y > 50 && input.up.isDown)
-		{
-			player.body.velocity.y = 50;
-		}
 
 		//collision detection for player and plants
 		//collision detection for ground/platforms and player
 		//collision detection for walls
-		game.physics.arcade.collide(player, plants);
+		game.physics.arcade.collide(player, plantMatter, plantSound);
 		game.physics.arcade.collide(player, platforms);
 		game.physics.arcade.collide(player, walls);
 
@@ -254,7 +546,7 @@ GamePlay.prototype = {
 		//through all existing plant groups to see
 		//which one is being clicked, so that the 
 		//right plant will grow
-		if (game.input.activePointer.isDown){
+		if (game.input.activePointer.isDown && !cameraMoving && isLightMode){
 			plants.forEach(identifyPlantGroup);
 			if(activeGroup != undefined){
 				//console.log(activeGroup);
@@ -263,49 +555,46 @@ GamePlay.prototype = {
 		}
 
 		//resets plant to original state
-		if(rKey.downDuration(1)){
+		if(rKey.downDuration(1) && !cameraMoving){
 			resetPlant(activeGroup);
 		}
 
-		//the following if/else statements allows for player movement
-		if (input.left.isDown && !isLightMode)
-			player.body.velocity.x = -150;
-
-		else if (input.right.isDown && !isLightMode)
-			player.body.velocity.x = 150;
-
-		//Jumping, works if touching the ground and not in light mode
-		if (input.up.isDown && !isLightMode && player.body.touching.down){
-			player.body.velocity.y = -225;
-			pop.play();
-		}
-
-		//upon pressing the spacebar, you can alternate
+				//upon pressing the spacebar, you can alternate
 		//from player mode and light mode as long as player is on a surface
-		if (spaceKey.downDuration(1) && !isLightMode && player.body.touching.down)
+		if (spaceKey.downDuration(1) && player.body.touching.down && isLightMode == false)
 		{
 			isLightMode = true;
 			player.loadTexture('lightMode');
 		}
-		else if(spaceKey.downDuration(1) && isLightMode)
-		{
+		else if(spaceKey.downDuration(1) && isLightMode == true){
 			isLightMode = false;
 			player.loadTexture('player');
 		}
 
+		if(isLightMode == true){
+			//camera Panning
+			cameraPanControls();
+		}
+		else{
+			//the following if/else statements allows for player movement
+			if (game.input.keyboard.isDown(Phaser.Keyboard.A) && !isLightMode)
+				player.body.velocity.x = -150;
 
-		//camera panning using W,A,S,D to allow players to peek around things they cant see
-		if(game.input.keyboard.isDown(Phaser.Keyboard.W)){
-			game.camera.y -= 200;
+			else if (game.input.keyboard.isDown(Phaser.Keyboard.D) && !isLightMode)
+				player.body.velocity.x = 150;
+
+			//Jumping, works if touching the ground and not in light mode
+			if (game.input.keyboard.isDown(Phaser.Keyboard.W) && !isLightMode && player.body.touching.down){
+				player.body.velocity.y = -225;
+				pop.play();
+				plantImpacted = false;
+			}
 		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.A)){
-			game.camera.x -= 200;
-		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.S)){
-			game.camera.y += 200;
-		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.D)){
-			game.camera.x += 200;	
+
+		//if UP is held while falling, it makes a "floaty" fall
+		if(player.body.velocity.y > 50 && game.input.keyboard.isDown(Phaser.Keyboard.W))
+		{
+			player.body.velocity.y = 50;
 		}
 
 		//if the player falls to the bottom of the screen it resets them to starting point
@@ -366,7 +655,7 @@ GameOver.prototype = {
 	update: function(){
 
 		if(spaceKey.isDown){
-				game.state.start('GamePlay', true, false, 0); //Starts the gameplay state if space is held down/pressed
+				game.state.start('MainMenu', true, false, 0); //Starts the gameplay state if space is held down/pressed
 		}
 	
 	}
@@ -390,7 +679,7 @@ function createPlant(x, y){
 	plant.body.immovable = true;
 	plant.anchor.set(0.5);
 	plant.body.syncBounds = true;
-
+	plant.alpha = 0.5; //to make more clear these can't be stood on
 	//adds the new plant group to the array of plants
 	plants.push(plantGroup);
 }
@@ -410,8 +699,16 @@ function identifyPlantGroup(plantGroup){
 
 	if(game.physics.arcade.overlap(plant, plantGroup))
 	{
+		//console.log(activeGroup);
+		//NOTE: if I dont add the second check, a reset plant bottom/base will have getBottom be undefined. I want to understand why - David
+		if (activeGroup != undefined && activeGroup.getBottom() != undefined)
+			activeGroup.getBottom().loadTexture('plant'); //resets the highlighted plant group's texture
+		
 		plant.destroy();
 		activeGroup = plantGroup;
+		
+		//Highlights the selected plant base
+		plantGroup.getBottom().loadTexture('highlight');
 	}
 	else{
 		plant.destroy();
@@ -423,7 +720,7 @@ function identifyPlantGroup(plantGroup){
 function growPlant(plantGroup){
 
 	//scales the plant down the further it goes to make it slightly skinner
-	var plantScale = 1.25-(plantGroup.total/135);
+	var plantScale = 1.1-(plantGroup.total/135);
 	//console.log(plantScale);
 
 	//plant growing is only allowed if there is no plant
@@ -457,6 +754,7 @@ function growPlant(plantGroup){
 				if(plantGroup.total == 100){
 					plant.tint = 0xffff00;
 				}
+				plantMatter.push(plant);
 			}
 			else
 				plant.destroy();
@@ -495,6 +793,54 @@ function inRange(number, low, high){
 
 }
 
+function plantSound(player){
+
+	//once a plant is touched by the player,
+	//a flag will change to prevent looping the sound
+	if(!plantImpacted)
+	{
+		plantImpact.play();
+		plantImpacted = true;
+	}
+}
+
+function cameraPanControls(){
+
+	//camera panning using W,A,S,D to allow players to peek around things they cant see
+	if(game.input.keyboard.isDown(Phaser.Keyboard.W)){
+		var temp = (game.world.height-250) - invisCameraBody.y;
+		if(temp < 0){
+			invisCameraBody.y -= 250-temp;
+		}
+		else
+			invisCameraBody.y -= 250;
+	}
+	if(game.input.keyboard.isDown(Phaser.Keyboard.A)){
+		var temp = (game.world.width-350) - invisCameraBody.x;
+		if(temp < 0){
+			invisCameraBody.x -= 250-temp;
+		}
+		else
+			invisCameraBody.x -= 250;
+	}
+	if(game.input.keyboard.isDown(Phaser.Keyboard.S)){
+		var temp = 250 - invisCameraBody.y;
+		if(temp > 0){
+			invisCameraBody.y += 250+temp;
+		}
+		else
+			invisCameraBody.y += 250;
+	}
+	if(game.input.keyboard.isDown(Phaser.Keyboard.D)){
+		var temp = 350 - invisCameraBody.x;
+		if(temp > 0){
+			invisCameraBody.x += 250+temp;
+		}
+		else
+			invisCameraBody.x += 250;	
+	}
+}
+
 //checks to see if the mouse is on the player
 function isBlockedByPlayer(){
 
@@ -517,9 +863,12 @@ function createUIElement(x, y, pic){
 }
 
 //for creating UI Elements fixed to the camera
-function createLedge(x, y, pic){
+function createLedge(x, y, pic, scaleX, scaleY){
 
 	var ledge = platforms.create(x, y, pic);
+	ledge.scale.x = scaleX;
+	ledge.scale.y = scaleY;
+
 	ledge.body.immovable = true;
 	ledge.body.syncBounds = true;
 	//ledge.anchor.set(0.5);
@@ -543,7 +892,7 @@ function render() {
     // display some debug info of the camera
     game.debug.cameraInfo(game.camera, 32, 32);
     // display some debug info of the camera
-    game.debug.spriteInfo(player, 32, game.height - 120);
+    game.debug.spriteInfo(invisCameraBody, 32, game.height - 120);
     game.debug.body(player);
 
     game.debug.text(game.time.fps || '--', 2, 14, "#00ff00"); 
@@ -555,6 +904,7 @@ function resetPlant(activeGroup){
 
 	for(i = 0 ; i < plants.length ; i++){
 		if(activeGroup != null && plants[i] === activeGroup){
+
 			var temp = activeGroup.getBottom();
 			activeGroup.destroy();
 			createPlant(temp.x,temp.y);
@@ -619,4 +969,5 @@ function flash(sprite){
 game.state.add('MainMenu', MainMenu);
 game.state.add('GamePlay', GamePlay);
 game.state.add('GameOver', GameOver);
+game.state.add('Tutorial', Tutorial);
 game.state.start('MainMenu');
