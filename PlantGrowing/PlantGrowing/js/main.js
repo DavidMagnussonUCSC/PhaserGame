@@ -67,6 +67,8 @@ var cameraMoving = true;
 //Var for level exits/victory
 var invisCameraBody;
 
+var farground;
+
 // MAIN MENU STATE START -----------------------------------------------------------------------------------------------
 
 var MainMenu = function(game) {};
@@ -88,6 +90,11 @@ MainMenu.prototype = {
 		game.load.image('exit', 'exit.png');
 		game.load.image('fade', 'blackfade.png');
 		game.load.image('highlight', 'PlantHighlight.png');
+		game.load.image('floor', 'floor.png');
+		game.load.image('plantlocations', 'plantlocations.png');
+		game.load.image('foreground', 'foreground.png');
+		game.load.image('bforeground', 'bforeground.png');
+		game.load.image('farground', 'farground.png');
 
 		//audio setup/assets
 		game.load.path = 'assets/audio/';
@@ -153,7 +160,7 @@ MainMenu.prototype = {
 		if(spaceKey.isDown)
 		{
 			//Starts the gameplay state if space is held down/pressed
-			game.state.start('Tutorial', true, false, 0);
+			game.state.start('GamePlay', true, false, 0);
 		}
 	}
 }
@@ -414,13 +421,18 @@ GamePlay.prototype = {
 	create: function(){
 
 		//sets game background color to navy blue
-		game.stage.backgroundColor = "#000d1a"; 
+		game.stage.backgroundColor = "#235347"; 
 		
 		//enable arcade physics
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 		
 		//Set game world size to double the viewable area of the game
 		game.world.setBounds(0, 0, game.width*2, game.height*2);
+
+		farground = game.add.tileSprite(0, 0, game.world.width, game.world.height, 'farground');
+		farground.sendToBack();
+		var bforeground = game.add.sprite(-385, 0, 'bforeground');
+		//bforeground.sendToBack();
 		
 		//makes the player object and adds it to its group
 		//adds bounce to the player
@@ -502,11 +514,15 @@ GamePlay.prototype = {
 		createWall(659, 643, 'box', 1, 35);
 
 		//creation of UI elements
-		UIGroup = game.add.group();
+		//UIGroup = game.add.group();
 		//createUIElement(game.camera.width-50, 50, 'ui');
 		//createUIElement(game.camera.width-100, 50, 'ui');
 		//createUIElement(game.camera.width-150, 50, 'ui');
 
+		//temp sprite to make it look like a pit at the botom of the screen
+		var floor = game.add.sprite(0, 0, 'floor');
+		var foreground = game.add.sprite(27, 0, 'foreground');
+		//var plantlocations = game.add.sprite(0, 0, 'plantlocations');
 
 		//keeps player from moving during the zoom out/zoom inu until time has passed
 		//the timing on how the camera zooms in/zooms out
@@ -526,6 +542,8 @@ GamePlay.prototype = {
 	},
 
 	update: function(){
+
+		farground.x = -game.camera.x/10;
 
 		invisCameraBody.x = player.x;
 		invisCameraBody.y = player.y;
