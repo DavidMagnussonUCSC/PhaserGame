@@ -95,6 +95,11 @@ MainMenu.prototype = {
 		game.load.image('foreground', 'foreground.png');
 		game.load.image('bforeground', 'bforeground.png');
 		game.load.image('farground', 'farground.png');
+		game.load.image('leaf1', 'leaf1.png');
+		game.load.image('leaf2', 'leaf22.png');
+		game.load.image('leaf3', 'leaf3.png');
+		game.load.image('plantlights', 'plantlights.png');
+		game.load.image('lightfade', 'lightfade.png');
 
 		//audio setup/assets
 		game.load.path = 'assets/audio/';
@@ -250,8 +255,8 @@ Tutorial.prototype = {
 		//these are acting as the boundary around the game (off screen)
 		walls = game.add.group();
 		walls.enableBody = true;
-		createWall(-32, -game.world.height/2, 'box', 1, 75);
-		createWall(game.world.width+32, -game.world.height/2, 'box', 1, 75);
+		createWall(-32, -game.world.height/2, 'box', 1, 75, 0);
+		createWall(game.world.width+32, -game.world.height/2, 'box', 1, 75, 0);
 
 		//creates the walls as a passage block (seen on screen)
 		createWall(600, game.world.height-221, 'box', 1, 4);
@@ -433,6 +438,25 @@ GamePlay.prototype = {
 		farground.sendToBack();
 		var bforeground = game.add.sprite(-385, 0, 'bforeground');
 		//bforeground.sendToBack();
+
+		var back_emitter = game.add.emitter(game.world.centerX, -32, 600);
+
+	    back_emitter = game.add.emitter(game.world.centerX, -32, 600);
+    	back_emitter.makeParticles(['leaf2']);
+	    back_emitter.maxParticleScale = 0.35;
+	    back_emitter.minParticleScale = 0.15;
+	    back_emitter.maxParticleAlpha = 0.75;
+	    back_emitter.minParticleAlpha = 0.5;
+	    back_emitter.setYSpeed(20, 100);
+	    back_emitter.gravity = 0;
+	    back_emitter.width = game.world.width * 1.5;
+	    back_emitter.minRotation = 0;
+	    back_emitter.maxRotation = 40;
+
+	    //  This will emit a quantity of 5 particles every 500ms. Each particle will live for 2000ms.
+	    //  The -1 means "run forever"
+	    back_emitter.start(false, 27000, 450);
+	    //back_emitter.flow(5000, 1000, 3, -1);
 		
 		//makes the player object and adds it to its group
 		//adds bounce to the player
@@ -459,13 +483,7 @@ GamePlay.prototype = {
 		platforms.enableBody = true;
 		createLedge(-200,game.world.height-125, 'platform', 1, 1);
 		createLedge(game.world.width-175, 275, 'platform', 1, 1);
-
-		//Create the plants in positions modeled after the paper prototype(some modifications)
-		createPlant(350, 1200);
-		createPlant(450, 110);
-		createPlant(675, 610);
-		createPlant(1425, 100);
-		createPlant(1525, 800);
+		//createLedge(610, 595, 'platform', 0.35, 1);
 
 		//adds exit door at the end of the level to trigger GameOver
 		exits = game.add.group();
@@ -510,8 +528,11 @@ GamePlay.prototype = {
 		createWall(game.world.width+32, -game.world.height/2, 'box', 1, 75);
 
 		//creates the walls as a passage block (seen on screen)
-		createWall(1409, -253, 'box', 1, 10);
-		createWall(659, 643, 'box', 1, 35);
+		createWall(1409, -253, 'box', 1, 10, 0);
+		createWall(239, -183, 'box', 1, 10, -32);
+		createWall(616, 615, 'box', 3.9, 35, 0);
+		//createWall(625, 643, 'box', 1, 35, 5);
+		//createWall(703, 643, 'box', 1, 35, -3);
 
 		//creation of UI elements
 		//UIGroup = game.add.group();
@@ -522,7 +543,16 @@ GamePlay.prototype = {
 		//temp sprite to make it look like a pit at the botom of the screen
 		var floor = game.add.sprite(0, 0, 'floor');
 		var foreground = game.add.sprite(27, 0, 'foreground');
+		//foreground.alpha = (0.5);
+		var plantlights = game.add.sprite(0, 0, 'plantlights');
 		//var plantlocations = game.add.sprite(0, 0, 'plantlocations');
+
+		//Create the plants in positions modeled after the paper prototype(some modifications)
+		createPlant(350, 1200);
+		createPlant(445, 104);
+		createPlant(675, 610);
+		createPlant(1422, 98);
+		createPlant(1540, 810);
 
 		//keeps player from moving during the zoom out/zoom inu until time has passed
 		//the timing on how the camera zooms in/zooms out
@@ -538,12 +568,11 @@ GamePlay.prototype = {
 			cameraMoving = false;
 		});
 	
-	
 	},
 
 	update: function(){
 
-		farground.x = -game.camera.x/10;
+		farground.x = -game.camera.x/12;
 
 		invisCameraBody.x = player.x;
 		invisCameraBody.y = player.y;
@@ -697,8 +726,9 @@ function createPlant(x, y){
 	plant.body.immovable = true;
 	plant.anchor.set(0.5);
 	plant.body.syncBounds = true;
-	plant.alpha = 0.5; //to make more clear these can't be stood on
+	plant.alpha = 0.0; //to make more clear these can't be stood on
 	//adds the new plant group to the array of plants
+	addLightPulse(plant);
 	plants.push(plantGroup);
 }
 
@@ -822,6 +852,15 @@ function plantSound(player){
 	}
 }
 
+function addLightPulse(plant){
+	var light = game.add.sprite(plant.x, plant.y, 'lightfade');
+	light.anchor.set(0.5);
+	light.alpha = 0.25;
+	light.moveDown();
+	game.add.tween(light).to( { alpha: 0.5 }, 1000, Phaser.Easing.Linear.None, true, 0, 500, true);
+	game.add.tween(light.scale).to( { x: 2, y: 2 }, 1000, Phaser.Easing.Linear.None, true, 0, 500, true);
+}
+
 function cameraPanControls(){
 
 	//camera panning using W,A,S,D to allow players to peek around things they cant see
@@ -894,7 +933,7 @@ function createLedge(x, y, pic, scaleX, scaleY){
 }
 
 //for creating UI Elements fixed to the camera
-function createWall(x, y, pic, scaleX, scaleY){
+function createWall(x, y, pic, scaleX, scaleY, rotation){
 
 	var wall = walls.create(x, y, pic);
 	wall.scale.x = scaleX;
@@ -902,6 +941,7 @@ function createWall(x, y, pic, scaleX, scaleY){
 	//wall.anchor.set(0.5);
 	wall.body.immovable = true;
 	wall.body.syncBounds = true;
+	wall.angle = rotation;
 }
 
 //used for debug info
