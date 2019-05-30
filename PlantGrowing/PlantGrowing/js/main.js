@@ -25,9 +25,13 @@ var input;
 //boolean for if light mode is on or off
 var isLightMode = false;
 
-//variable to store and describe spacebar input information
+//variables to store and describe keyboard input information
 var spaceKey;
 var rKey;
+var wKey;
+var aKey;
+var sKey;
+var dKey;
 
 //variable to store and describe mouse input information
 var mouse;
@@ -103,6 +107,12 @@ MainMenu.prototype = {
 		spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
 		rKey = game.input.keyboard.addKey(Phaser.Keyboard.R);
+		
+		//adds wasd key objects
+		wKey = game.input.keyboard.addKey(Phaser.Keyboard.W)
+		aKey = game.input.keyboard.addKey(Phaser.Keyboard.A)
+		sKey = game.input.keyboard.addKey(Phaser.Keyboard.S)
+		dKey = game.input.keyboard.addKey(Phaser.Keyboard.D)
 
 		//adds mouse information to mouse
 		mouse = game.input.activePointer;
@@ -335,14 +345,14 @@ Tutorial.prototype = {
 		}
 
 		//the following if/else statements allows for player movement
-		if (input.left.isDown && !isLightMode)
+		if (aKey.isDown && !isLightMode)
 			player.body.velocity.x = -150;
 
-		else if (input.right.isDown && !isLightMode)
+		else if (dKey.isDown && !isLightMode)
 			player.body.velocity.x = 150;
 
 		//Jumping, works if touching the ground and not in light mode
-		if (input.up.isDown && !isLightMode && player.body.touching.down){
+		if (wKey.isDown && !isLightMode && player.body.touching.down){
 			player.body.velocity.y = -225;
 			pop.play();
 			plantImpacted = false;
@@ -363,16 +373,16 @@ Tutorial.prototype = {
 
 
 		//camera panning using W,A,S,D to allow players to peek around things they cant see
-		if(game.input.keyboard.isDown(Phaser.Keyboard.W)){
+		if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT && wKey.isDown)){
 			game.camera.y -= 200;
 		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.A)){
+		if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT && aKey.isDown)){
 			game.camera.x -= 200;
 		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.S)){
+		if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT && sKey.isDown)){
 			game.camera.y += 200;
 		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.D)){
+		if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT && dKey.isDown)){
 			game.camera.x += 200;	
 		}
 
@@ -564,14 +574,14 @@ GamePlay.prototype = {
 		}
 
 		//the following if/else statements allows for player movement
-		if (input.left.isDown && !isLightMode && !cameraMoving)
+		if (aKey.isDown && !isLightMode)
 			player.body.velocity.x = -150;
 
-		else if (input.right.isDown && !isLightMode && !cameraMoving)
+		else if (dKey.isDown && !isLightMode)
 			player.body.velocity.x = 150;
 
 		//Jumping, works if touching the ground and not in light mode
-		if (input.up.isDown && !isLightMode && player.body.touching.down && !cameraMoving){
+		if (wKey.isDown && !isLightMode && player.body.touching.down){
 			player.body.velocity.y = -225;
 			pop.play();
 			plantImpacted = false;
@@ -592,16 +602,16 @@ GamePlay.prototype = {
 
 
 		//camera panning using W,A,S,D to allow players to peek around things they cant see
-		if(game.input.keyboard.isDown(Phaser.Keyboard.W) && !cameraMoving){
+		if( wKey.isDown && game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
 			game.camera.y -= 200;
 		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.A) && !cameraMoving){
+		if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT && aKey.isDown)){
 			game.camera.x -= 200;
 		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.S) && !cameraMoving){
+		if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT && sKey.isDown)){
 			game.camera.y += 200;
 		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.D) && !cameraMoving){
+		if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT && dKey.isDown)){
 			game.camera.x += 200;	
 		}
 
