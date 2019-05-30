@@ -84,6 +84,9 @@ var plantEmitter;
 //a check for pressing space
 var readyStart = false;
 
+//Variable for text displayed at start of level(s)
+var startText;
+
 // MAIN MENU STATE START -----------------------------------------------------------------------------------------------
 
 var MainMenu = function(game) {};
@@ -119,9 +122,10 @@ MainMenu.prototype = {
 		//audio setup/assets
 		game.load.path = 'assets/audio/';
 		game.load.audio('pop', 'pop01.mp3');
-		game.load.audio('loop', 'shortambientloop.wav');
+		game.load.audio('fastBgMusic', 'Plant_Growing_Song_Fast.wav');
+		game.load.audio('slowBgMusic', 'Plant_Growing_Song_Slow.wav');
 		game.load.audio('oof', 'hurt.mp3');
-		 game.load.audio('plantImpact', 'Plant.mp3')
+		game.load.audio('plantImpact', 'Plant.mp3')
 		
 		//allows for access to mouse information
 		game.input.mouse.capture = true;
@@ -180,7 +184,7 @@ MainMenu.prototype = {
 		if(spaceKey.isDown)
 		{
 			//Starts the gameplay state if space is held down/pressed
-			game.state.start('GamePlay', true, false, 0);
+			game.state.start('Tutorial', true, false, 0);
 		}
 	}
 }
@@ -195,7 +199,7 @@ Tutorial.prototype = {
 	
 	create: function(){
 		//sets game background color to navy blue
-		game.stage.backgroundColor = "#228B22"; 
+		game.stage.backgroundColor = "#add8e6"; 
 		
 		//enable arcade physics
 		game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -233,7 +237,7 @@ Tutorial.prototype = {
 	    oof.volume = 0.1;
 
 	    //temp audio looping background music
-	    songLoop = game.add.audio('loop');
+	    songLoop = game.add.audio('fastBgMusic');
 	    songLoop.volume = 0.05;
 	    songLoop.loop = true;
 	    songLoop.play();
@@ -254,14 +258,16 @@ Tutorial.prototype = {
 		createLedge(2850, game.world.height-200, 'platform', 1, 1);
 		createLedge(3582, game.world.height-532, 'platform', 1, 1);
 		createLedge(3982, game.world.height-532, 'platform', 1, 1);
-		createLedge(5750, game.world.height-532, 'platform', 1, 1);
-		createLedge(4760, game.world.height-630, 'platform', 0.25, 1);
+		createLedge(4760, game.world.height-580, 'platform', 0.25, 1); //plant platform
+		createLedge(5650, game.world.height-532, 'platform', 1, 1);
+		createLedge(6700, game.world.height - 532, 'platform', 1, 1);
 
 		//Create the plants in positions modeled after the paper prototype(some modifications)
-		addLightPulse(3550, game.world.height - 516);
+		//addLightPulse(3550, game.world.height - 516);
 		createPlant(3550, game.world.height - 516);
-		addLightPulse(4810, game.world.height - 580);
-		createPlant(4810, game.world.height - 580);
+		//addLightPulse(4810, game.world.height - 530);
+		createPlant(4810, game.world.height - 530);
+		createPlant(6600, game.world.height - 530);
 
 		//temp sprite to make it look like a pit at the botom of the screen
 		var pit = game.add.sprite(0, game.world.height-200, 'fade');
@@ -282,25 +288,28 @@ Tutorial.prototype = {
 		game.add.text(32, game.world.height - 600, 'Use W,A,S,D to move', { fontSize: '32px', fill: '#000' });
 		game.add.text(32, game.world.height - 500, 'Use the W arrow to jump! (Hold for slow fall)', { fontSize: '32px', fill: '#000' });
 		game.add.text(1150, game.world.height - 600, 'You can peek the camera to view things a bit away!', { fontSize: '32px', fill: '#000' });
-		game.add.text(1150, game.world.height - 500, 'While Blue, Use the WASD keys to peek the camera', { fontSize: '32px', fill: '#000' });
+		game.add.text(1150, game.world.height - 500, 'Press space to switch forms to root yourself and stop moving', { fontSize: '32px', fill: '#000' });
+		game.add.text(1150, game.world.height - 400, 'While rooted, Use the WASD keys to peek the camera', { fontSize: '32px', fill: '#000' });
 		game.add.text(2100, game.world.height - 600, 'Jump off the edge and hold the jump', { fontSize: '22px', fill: '#000' });
 		game.add.text(2100, game.world.height - 550, 'key to slow fall to this platform!', { fontSize: '22px', fill: '#000' });
-		game.add.text(3300, game.world.height - 400, 'Press space to swap into unmoving plant growing form!', { fontSize: '16px', fill: '#000' });
-		game.add.text(3300, game.world.height - 325, 'While in this form, click and drag on roots', { fontSize: '16px', fill: '#000' });
+		game.add.text(3300, game.world.height - 400, 'While in the rooted form, you can grow plants!', { fontSize: '16px', fill: '#000' });
+		game.add.text(3300, game.world.height - 325, 'Click and drag on glowing plant nodes', { fontSize: '16px', fill: '#000' });
 		game.add.text(3300, game.world.height - 300, 'to grow plant platforms!', { fontSize: '16px', fill: '#000' });
 		game.add.text(3300, game.world.height - 225, '(If you mess up, press R to reset the last', { fontSize: '16px', fill: '#000' });
-		game.add.text(3300, game.world.height - 200, 'clicked plants)', { fontSize: '16px', fill: '#000' });
-		game.add.text(3300, game.world.height - 150, '(Unfortunately, roots cannot be stood on as', { fontSize: '16px', fill: '#000' });
-		game.add.text(3300, game.world.height - 125, 'they are too fragile', { fontSize: '16px', fill: '#000' });
+		game.add.text(3300, game.world.height - 200, 'clicked plant)', { fontSize: '16px', fill: '#000' });
+		//game.add.text(3300, game.world.height - 150, '(Unfortunately, roots cannot be stood on as', { fontSize: '16px', fill: '#000' });
+		//game.add.text(3300, game.world.height - 125, 'they are too fragile', { fontSize: '16px', fill: '#000' });
 		game.add.text(4200, game.world.height - 480	, 'You can grow a plant, reset it (R), and', { fontSize: '22px', fill: '#000' });
 		game.add.text(4200, game.world.height - 450	, 'grow it another way to progress!', { fontSize: '22px', fill: '#000' });
 		game.add.text(4200, game.world.height - 420	, 'Try it now!', { fontSize: '22px', fill: '#000' });
-		game.add.text(5800, game.world.height - 800	, 'Good job, and good luck!', { fontSize: '22px', fill: '#000' });
+		game.add.text(5800, game.world.height - 800	, 'Good job, now heres one last trick!', { fontSize: '22px', fill: '#000' });
+		game.add.text(5800, game.world.height - 750	, 'While peeking with the Camera, you can grow plants you see!', { fontSize: '22px', fill: '#000' });
+		game.add.text(6750, game.world.height - 800, 'Good luck!', { fontSize: '22px', fill: '#000' });
 		
 		//adds exit door at the end of the level to trigger GameOver
 		exits = game.add.group();
 		exits.enableBody = true;
-		var exit = exits.create(5900, 1000, 'exit');
+		var exit = exits.create(6800, 1000, 'exit');
 		exit.anchor.set(0.5);
 		
 		//creation of UI elements
@@ -506,8 +515,8 @@ GamePlay.prototype = {
 	    oof = game.add.audio('oof');
 	    oof.volume = 0.1;
 
-	    //temp audio looping background music
-	    songLoop = game.add.audio('loop');
+	    //slow audio looping background music
+	    songLoop = game.add.audio('slowBgMusic');
 	    songLoop.volume = 0.05;
 	    songLoop.loop = true;
 	    songLoop.play();
@@ -554,15 +563,15 @@ GamePlay.prototype = {
 		//var plantlocations = game.add.sprite(0, 0, 'plantlocations');
 
 		//Create the plants in positions modeled after the paper prototype(some modifications)
-		addLightPulse(355, 1200);
+		//addLightPulse(355, 1200);
 		createPlant(355, 1200);
 		// addLightPulse(445, 104);
 		// createPlant(445, 104);
-		addLightPulse(678, 610);
+		//addLightPulse(678, 610);
 		createPlant(678, 610);
-		addLightPulse(1022, 98);
+		//addLightPulse(1022, 98);
 		createPlant(1022, 98);
-		addLightPulse(1526, 804);
+		//addLightPulse(1526, 804);
 		createPlant(1526, 804);
 
 		//keeps player from moving during the zoom out/zoom inu until time has passed
@@ -589,9 +598,11 @@ GamePlay.prototype = {
 			isLightMode = false;
 			readyStart = true;
 			cameraMoving = true;
+			startText = game.add.text(game.width/2, game.height/2 - 50, 'Press Space to start', { fontSize: '64px', fill: '#00EE00' });
 		}
 		if (spaceKey.downDuration(1) && cameraMoving && isLightMode == false && readyStart == true){
 				
+				startText.destroy();
 				//cameraMoving = true;
 				lightMode = true;
 				readyStart = null;
@@ -785,6 +796,7 @@ GameOver.prototype = {
 //at position (x,y)
 function createPlant(x, y){
 
+	addLightPulse(x, y)
 	var plantGroup = game.add.group();
 	plantGroup.enableBody = true;
 	plant = plantGroup.create(x, y, 'plant');
@@ -1015,7 +1027,10 @@ function createLedge(x, y, pic, scaleX, scaleY){
 	var ledge = platforms.create(x, y, pic);
 	ledge.scale.x = scaleX;
 	ledge.scale.y = scaleY;
-	ledge.alpha = 0;
+	if(game.state.getCurrentState().key != "Tutorial")
+	{
+		ledge.alpha = 0;
+	}
 
 	ledge.body.immovable = true;
 	ledge.body.syncBounds = true;
@@ -1029,7 +1044,10 @@ function createWall(x, y, pic, scaleX, scaleY, rotation){
 	var wall = walls.create(x, y, pic);
 	wall.scale.x = scaleX;
 	wall.scale.y = scaleY;
-	wall.alpha = 0;
+	if(game.state.getCurrentState().key != "Tutorial")
+	{
+		wall.alpha = 0;
+	}
 	//wall.anchor.set(0.5);
 	wall.body.immovable = true;
 	wall.body.syncBounds = true;
