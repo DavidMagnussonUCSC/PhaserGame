@@ -549,9 +549,8 @@ GamePlay.prototype = {
 
 		//Create the plants in positions modeled after the paper prototype(some modifications)
 		createPlant(350, 1200);
-		createPlant(445, 104);
 		createPlant(675, 610);
-		createPlant(1422, 98);
+		createPlant(1022, 98);
 		createPlant(1540, 810);
 
 		//keeps player from moving during the zoom out/zoom inu until time has passed
@@ -1027,9 +1026,5 @@ function flash(sprite){
 game.state.add('MainMenu', MainMenu);
 game.state.add('GamePlay', GamePlay);
 game.state.add('GameOver', GameOver);
-<<<<<<< HEAD
-game.state.start('MainMenu');
-=======
 game.state.add('Tutorial', Tutorial);
 game.state.start('MainMenu');
->>>>>>> 5ae90d51974133e1ddc5918f316d309dd4a6b713
