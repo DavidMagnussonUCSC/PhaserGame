@@ -749,6 +749,7 @@ GamePlay.prototype = {
 		{
 			songLoop.destroy();
 			game.state.start('GameOver', true, false, 0);
+			readyStart = false;
 		}
 
 
