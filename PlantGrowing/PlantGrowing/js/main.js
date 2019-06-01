@@ -87,6 +87,7 @@ var readyStart = false;
 //Variable for text displayed at start of level(s)
 var startText;
 
+
 // MAIN MENU STATE START -----------------------------------------------------------------------------------------------
 
 var MainMenu = function(game) {};
@@ -184,7 +185,7 @@ MainMenu.prototype = {
 		if(spaceKey.isDown)
 		{
 			//Starts the gameplay state if space is held down/pressed
-			game.state.start('Tutorial', true, false, 0);
+			game.state.start('GamePlay', true, false, 0);
 		}
 	}
 }
@@ -237,7 +238,7 @@ Tutorial.prototype = {
 	    oof.volume = 0.1;
 
 	    //temp audio looping background music
-	    songLoop = game.add.audio('fastBgMusic');
+	    songLoop = game.add.audio('slowBgMusic');
 	    songLoop.volume = 0.05;
 	    songLoop.loop = true;
 	    songLoop.play();
@@ -309,7 +310,7 @@ Tutorial.prototype = {
 		//adds exit door at the end of the level to trigger GameOver
 		exits = game.add.group();
 		exits.enableBody = true;
-		var exit = exits.create(6800, 1000, 'exit');
+		var exit = exits.create(7000, 1000, 'exit');
 		exit.anchor.set(0.5);
 		
 		//creation of UI elements
@@ -442,6 +443,7 @@ GamePlay.prototype = {
 		//enable arcade physics
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 		
+		
 		//Set game world size to double the viewable area of the game
 		game.world.setBounds(0, 0, game.width*2, game.height*2);
 
@@ -471,12 +473,13 @@ GamePlay.prototype = {
 		//sets player gravity
 		players = game.add.group();
 		players.enableBody = true;
-		player = players.create(80, game.world.height-250, 'player');
+		player = players.create(60, game.world.height-189, 'player');
 		player.anchor.set(0.5);
 		player.body.bounce.y = .02;
 		player.body.gravity.y = 200;
 		player.body.maxVelocity = 0;
 		player.body.syncBounds = true;
+		
 
 		//creating the pulse behind the player then in light mode
 		plight = game.add.sprite(player.x, player.y, 'lightfade');
@@ -539,8 +542,8 @@ GamePlay.prototype = {
 		//these are acting as the boundary around the game (off screen)
 		walls = game.add.group();
 		walls.enableBody = true;
-		createWall(-32, -game.world.height/2, 'box', 1, 75);
-		createWall(game.world.width+32, -game.world.height/2, 'box', 1, 75);
+/* 		createWall(-32, -game.world.height/2, 'box', 1, 75);
+		createWall(game.world.width+32, -game.world.height/2, 'box', 1, 75); */
 
 		//creates the walls as a passage block (seen on screen)
 		createWall(1015, -253, 'box', 1, 10, 0);
@@ -618,6 +621,7 @@ GamePlay.prototype = {
 					console.log('start');
 				});
 
+
 		}
 
 		//slight background paralax scrolling
@@ -631,8 +635,6 @@ GamePlay.prototype = {
 		plight.x = player.x;
 		plight.y = player.y;
 
-		//sets player velocity to 0 if nothing is being pressed
-		player.body.velocity.x = 0;
 		//player.body.velocity.y = 0; removed so gravity works
 
 		//collision detection for player and plants
@@ -693,6 +695,11 @@ GamePlay.prototype = {
 
 			else if (game.input.keyboard.isDown(Phaser.Keyboard.D) && !isLightMode)
 				player.body.velocity.x = 150;
+			else
+			{
+				//sets player velocity to 0 if nothing is being pressed
+				player.body.velocity.x = 0;
+			}
 
 			//Jumping, works if touching the ground and not in light mode
 			if (game.input.keyboard.isDown(Phaser.Keyboard.W) && !isLightMode && player.body.touching.down){
