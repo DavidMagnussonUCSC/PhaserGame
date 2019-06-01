@@ -87,6 +87,9 @@ var readyStart = false;
 //Variable for text displayed at start of level(s)
 var startText;
 
+//Variable for regulating wall collision for player
+var wallCollision;
+
 
 // MAIN MENU STATE START -----------------------------------------------------------------------------------------------
 
@@ -430,12 +433,14 @@ Tutorial.prototype = {
 		render();
 	}
 }
-
+	
 //Gameplay State
 var GamePlay = function(game) {};
 GamePlay.prototype = {
 	
 	create: function(){
+
+		wallCollision = false;
 
 		//sets game background color to navy blue
 		game.stage.backgroundColor = "#235347"; 
@@ -473,7 +478,7 @@ GamePlay.prototype = {
 		//sets player gravity
 		players = game.add.group();
 		players.enableBody = true;
-		player = players.create(60, game.world.height-189, 'player');
+		player = players.create(-64, game.world.height-157, 'player');
 		player.anchor.set(0.5);
 		player.body.bounce.y = .02;
 		player.body.gravity.y = 200;
@@ -542,8 +547,8 @@ GamePlay.prototype = {
 		//these are acting as the boundary around the game (off screen)
 		walls = game.add.group();
 		walls.enableBody = true;
-/* 		createWall(-32, -game.world.height/2, 'box', 1, 75);
-		createWall(game.world.width+32, -game.world.height/2, 'box', 1, 75); */
+ 		createWall(-32, -game.world.height/2, 'box', 1, 75);
+		createWall(game.world.width+32, -game.world.height/2, 'box', 1, 75);
 
 		//creates the walls as a passage block (seen on screen)
 		createWall(1015, -253, 'box', 1, 10, 0);
@@ -582,6 +587,14 @@ GamePlay.prototype = {
 		// waits for player input (spacebar) in update() to continue sequence
 		isLightMode = true;
 		cameraMoving = true;
+		
+		//Timer for player animation
+		var timer = game.time.create(false);
+		timer.loop(2000, function() {
+			player.body.velocity.x = 0
+		}, this);
+		game.physics.arcade.moveToXY(player , 80, game.world.height-189, 60, 2000)//player entry animation
+		timer.start();
 		game.time.events.add(3000, function() { 
 			zoomLoop = game.time.events.repeat(10, 200, cameraZoomOut, this);
 		});
@@ -594,7 +607,7 @@ GamePlay.prototype = {
 	},
 
 	update: function(){
-
+		
 		//check for spacebar input to zoom out camera
 		if(isLightMode == true && !cameraMoving && readyStart == false){
 			console.log('press space to start');
@@ -619,6 +632,8 @@ GamePlay.prototype = {
 					cameraMoving = false;
 					lightMode = false;
 					console.log('start');
+					wallCollision = true;
+					console.log(wallCollision);
 				});
 
 
@@ -635,14 +650,11 @@ GamePlay.prototype = {
 		plight.x = player.x;
 		plight.y = player.y;
 
-		//player.body.velocity.y = 0; removed so gravity works
-
 		//collision detection for player and plants
 		//collision detection for ground/platforms and player
-		//collision detection for walls
 		game.physics.arcade.collide(player, plantMatter, plantSound);
 		game.physics.arcade.collide(player, platforms);
-		game.physics.arcade.collide(player, walls);
+		game.physics.arcade.collide(player, walls, null, function(){ return wallCollision}); //Collision detection for walls, added like so so player can slide in from offscreen.
 
 		//isDown will be true if the left click
 		//is down. The forEach function will browse
@@ -697,7 +709,6 @@ GamePlay.prototype = {
 				player.body.velocity.x = 150;
 			else
 			{
-				//sets player velocity to 0 if nothing is being pressed
 				player.body.velocity.x = 0;
 			}
 
