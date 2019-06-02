@@ -165,25 +165,26 @@ MainMenu.prototype = {
 	create: function(){
 		//sets main menu background color to forestgreen
 		game.stage.backgroundColor = "#081f1f";
+		game.world.setBounds(0, 0, game.width, game.height);
 		
 		//Adds instruction text
 		var text = game.add.text(game.world.centerX, 150, 'OverGrown', { fontSize: '64px', fill: '#000'});
 		text.addColor('#fff', 0);
 		text.anchor.set(0.5);
 
-		button = game.add.button(game.world.centerX, 350, 'platform', function(){fadeOutTo('Tutorial');}, this, 2, 1, 0);
+		button = game.add.button(game.world.centerX, 350, 'platform', function(){fadeOut(1.25, 1.5, 'Tutorial');}, this, 2, 1, 0);
 		button.anchor.set(0.5);
 		button.scale.y = 2;
 		var text = game.add.text(game.world.centerX, 350, 'Play', { fontSize: '32px', fill: '#000' });
 		text.anchor.set(0.5);
 		
-		button = game.add.button(game.world.centerX, 450, 'platform', function(){fadeOutTo('GamePlay');}, this, 2, 1, 0);
+		button = game.add.button(game.world.centerX, 450, 'platform', function(){fadeOut(1.25, 1.5, 'GamePlay');}, this, 2, 1, 0);
 		button.anchor.set(0.5);
 		button.scale.y = 2;
 		var text = game.add.text(game.world.centerX, 450, 'Controls', { fontSize: '32px', fill: '#000' });
 		text.anchor.set(0.5);
 		
-		button = game.add.button(game.world.centerX, 550, 'platform', function(){fadeOutTo('GamePlay');}, this, 2, 1, 0);
+		button = game.add.button(game.world.centerX, 550, 'platform', function(){fadeOut(1.25, 1.5, 'GamePlay');}, this, 2, 1, 0);
 		button.anchor.set(0.5);
 		button.scale.y = 2;
 		var text = game.add.text(game.world.centerX, 550, 'Credits', { fontSize: '32px', fill: '#000' });
@@ -409,7 +410,7 @@ Tutorial.prototype = {
 		cameraMoving = false;
 		isLightMode = false;
 
-		fadeIn();
+		fadeIn(1.25, 1.5);
 		
 		// //creation of UI elements
 		// UIGroup = game.add.group();
@@ -519,9 +520,12 @@ Tutorial.prototype = {
 		//if the player falls to the bottom of the screen it resets them to starting point
 		//flashes the player for a couple seconds
 		if(player.y > game.world.height+player.height){
+
+			fadeOut(0.5, 1, 'null');
+
 			oof.play();
 			
-			player.reset(264, game.world.height-250);
+			// player.reset(80,game.world.height-250);
 
 			isLightMode = true;
 			cameraMoving = true;
@@ -534,12 +538,14 @@ Tutorial.prototype = {
 			plight.scale.x = 1;
 			plight.scale.y = 1;
 
-			game.time.events.add(2000, function() { 
+			game.time.events.add(1000, function() { 
 				isLightMode = false;
 				cameraMoving = false;
+				player.reset(80,game.world.height-250);
+				fadeIn(0, 1);
 			});
 
-			flash(player);
+			//flash(player);
 		}
 
 		//manual camera zoom in
@@ -555,7 +561,7 @@ Tutorial.prototype = {
 		if(game.physics.arcade.collide(player, exits))
 		{
 			songLoop.destroy();
-			fadeOutTo('GamePlay');
+			fadeOut(1.25, 1.5, 'GamePlay');
 		}
 
 		//used for debugging purposes
@@ -738,7 +744,8 @@ GamePlay.prototype = {
 			//cameraMoving = false;
 		});
 
-		fadeIn();
+
+		fadeIn(1.25, 1.5);
 	
 	},
 
@@ -878,9 +885,12 @@ GamePlay.prototype = {
 		//flashes the player for a couple seconds
 		//if they were in light mode it resets them and their pulse
 		if(player.y > game.world.height+player.height){
+
+			fadeOut(0.5, 1, 'null');
+
 			oof.play();
 			
-			player.reset(80,game.world.height-250);
+			// player.reset(80,game.world.height-250);
 
 			isLightMode = true;
 			cameraMoving = true;
@@ -893,12 +903,14 @@ GamePlay.prototype = {
 			plight.scale.x = 1;
 			plight.scale.y = 1;
 
-			game.time.events.add(2000, function() { 
+			game.time.events.add(1000, function() { 
 				isLightMode = false;
 				cameraMoving = false;
+				player.reset(80,game.world.height-250);
+				fadeIn(0, 1);
 			});
 
-			flash(player);
+			//flash(player);
 		}
 
 		//manual camera zoom in (player is NOT taught this, strictly used for playtesting reasons)
@@ -1316,7 +1328,7 @@ function flash(sprite){
     //game.add.tween(sprite).to( { alpha: 0 }, 250, Phaser.Easing.Linear.None, true);
 }
 
-function fadeIn(){
+function fadeIn(delay, duration){
 	//the black-in effect
         var blackout = game.add.sprite(0,0, 'blackout');
         //blackout.anchor.set(0.5);
@@ -1324,11 +1336,12 @@ function fadeIn(){
         // blackout.scale.y = 1.5;
         blackout.alpha = 1.0;
         //blackout.bringToTop();
-        game.time.events.add(Phaser.Timer.SECOND * 1.25, function() { game.add.tween(blackout).to({ alpha: 0 }, 1500, "Linear", true);});
+        game.time.events.add(Phaser.Timer.SECOND * delay, function() { game.add.tween(blackout).to({ alpha: 0 }, Phaser.Timer.SECOND * duration, "Linear", true);});
         //game.add.tween(blackout).to({ alpha: 0 }, 2000, "Linear", true);
+        game.time.events.add(Phaser.Timer.SECOND * (delay+duration), function() { blackout.destroy();});
 }
 
-function fadeOutTo(newGameState){
+function fadeOut(delay, duration, newGameState){
 	//the black-in effect
         var blackout = game.add.sprite(0, 0, 'blackout');
         //blackout.anchor.set(0.5);
@@ -1336,9 +1349,15 @@ function fadeOutTo(newGameState){
         // blackout.scale.y = 1.5;
         blackout.alpha = 0.0;
         //blackout.bringToTop();
-        game.time.events.add(Phaser.Timer.SECOND * 0, function() { game.add.tween(blackout).to({ alpha: 1 }, 1500, "Linear", true);});
-        game.time.events.add(Phaser.Timer.SECOND * 1.75, function() { game.state.start(newGameState, true, false, 0);});
+        if(newGameState != 'null'){
+        	game.time.events.add(Phaser.Timer.SECOND * 0, function() { game.add.tween(blackout).to({ alpha: 1 }, 1500, "Linear", true);});
+        	game.time.events.add(Phaser.Timer.SECOND * 1.75, function() { game.state.start(newGameState, true, false, 0);});
+    	}
+    	else{
+    		game.time.events.add(Phaser.Timer.SECOND * delay, function() { game.add.tween(blackout).to({ alpha: 1 }, Phaser.Timer.SECOND * duration, "Linear", true);});
+    	}
 
+    	game.time.events.add(Phaser.Timer.SECOND * (delay+duration), function() { blackout.destroy();});
         // game.add.tween(blackout).to({ alpha: 1 }, 2000, "Linear", true);
 }
 
