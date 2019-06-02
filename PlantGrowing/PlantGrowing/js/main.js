@@ -90,6 +90,7 @@ var startText;
 //Variable for regulating wall collision for player
 var wallCollision;
 
+var pEyes;
 
 // MAIN MENU STATE START -----------------------------------------------------------------------------------------------
 
@@ -107,21 +108,36 @@ MainMenu.prototype = {
 		game.load.image('ui', 'UI.png');
 		game.load.image('player', 'Player1.png');
 		game.load.image('plant', 'Plant.png');
+		game.load.image('particle', 'particle.png');
+		game.load.image('plant2', 'Box2.png');
+		game.load.image('endBox', 'endBox.png');
 		game.load.image('lightMode', 'Player_LightMode1.png');
 		game.load.image('platform', 'platform.png');
 		game.load.image('exit', 'exit.png');
 		game.load.image('fade', 'blackfade.png');
 		game.load.image('highlight', 'PlantHighlight.png');
+		game.load.image('leaf1', 'leaf1.png');
+		game.load.image('leaf2', 'leaf21.png');
+		game.load.image('leaf3', 'leaf3.png');
+		game.load.image('lightfade', 'lightfade.png');
+		game.load.image('blackout', 'blackout.png');
+		game.load.image('eyes', 'eyes.png');
+
+		//first level
+		game.load.image('plantlights', 'plantlights.png');
 		game.load.image('floor', 'floor.png');
 		game.load.image('plantlocations', 'plantlocations.png');
 		game.load.image('foreground', 'foreground.png');
 		game.load.image('bforeground', 'bforeground.png');
 		game.load.image('farground', 'farground.png');
-		game.load.image('leaf1', 'leaf1.png');
-		game.load.image('leaf2', 'leaf21.png');
-		game.load.image('leaf3', 'leaf3.png');
-		game.load.image('plantlights', 'plantlights.png');
-		game.load.image('lightfade', 'lightfade.png');
+
+		//tutorial
+		game.load.image('tutplantlocations', 'tutplantlocations.png');
+		game.load.image('tutplatforms', 'tutplatforms.png');
+		game.load.image('tutfloor', 'tutfloor.png');
+		game.load.image('tutforeground', 'tutforeground.png');
+		game.load.image('tutbforeground', 'tutbforeground.png');
+		game.load.image('tutfarground', 'tutfarground.png');
 
 		//audio setup/assets
 		game.load.path = 'assets/audio/';
@@ -148,48 +164,72 @@ MainMenu.prototype = {
 
 	create: function(){
 		//sets main menu background color to forestgreen
-		game.stage.backgroundColor = "#228B22";
+		game.stage.backgroundColor = "#081f1f";
 		
 		//Adds instruction text
-		var text = game.add.text(16, 18, 'Plant Platformer', { fontSize: '32px', fill: '#000'});
+		var text = game.add.text(game.world.centerX, 150, 'OverGrown', { fontSize: '64px', fill: '#000'});
 		text.addColor('#fff', 0);
+		text.anchor.set(0.5);
 
-		var text = game.add.text(16, 108, '* Use the "W,A,S,D" to move and jump, Hold the "W"', { fontSize: '32px', fill: '#000' });
-		//  And now we'll color in some of the letters
-    	text.addColor('#ffff00', 10);
-    	text.addColor('#000', 20);
-    	text.addColor('#ffff00', 50);
-		var text = game.add.text(16, 148, '  key while falling for a slow descent. ', { fontSize: '32px', fill: '#000' });
-
-		var text = game.add.text(16, 208, '* Press "SPACE" to switch forms. While in the "BLUE"', { fontSize: '32px', fill: '#000' });
-		text.addColor('#ffff00', 8);
-		text.addColor('#000', 15);
-		text.addColor('#0000FF', 45);
-		var text = game.add.text(16, 248, '  form you cannot move but you will be able to click', { fontSize: '32px', fill: '#000' });
-		var text = game.add.text(16, 288, '  and drag on the brown earth to grow platforms!', { fontSize: '32px', fill: '#000' });
+		button = game.add.button(game.world.centerX, 350, 'platform', function(){fadeOutTo('Tutorial');}, this, 2, 1, 0);
+		button.anchor.set(0.5);
+		button.scale.y = 2;
+		var text = game.add.text(game.world.centerX, 350, 'Play', { fontSize: '32px', fill: '#000' });
+		text.anchor.set(0.5);
 		
-		var text = game.add.text(16, 358, '* If a Plant isnt to your liking, click on the plant', { fontSize: '32px', fill: '#000' });
-		var text = game.add.text(16, 398, '  and press "R" to reset your most recent active plant! ', { fontSize: '32px', fill: '#000' });
-		text.addColor('#ffff00', 12);
-		text.addColor('#000', 15);
-		var text = game.add.text(16, 438, '  (plant highlighted by yellow)', { fontSize: '32px', fill: '#000' });
+		button = game.add.button(game.world.centerX, 450, 'platform', function(){fadeOutTo('GamePlay');}, this, 2, 1, 0);
+		button.anchor.set(0.5);
+		button.scale.y = 2;
+		var text = game.add.text(game.world.centerX, 450, 'Controls', { fontSize: '32px', fill: '#000' });
+		text.anchor.set(0.5);
+		
+		button = game.add.button(game.world.centerX, 550, 'platform', function(){fadeOutTo('GamePlay');}, this, 2, 1, 0);
+		button.anchor.set(0.5);
+		button.scale.y = 2;
+		var text = game.add.text(game.world.centerX, 550, 'Credits', { fontSize: '32px', fill: '#000' });
+		text.anchor.set(0.5);
+		
 
-		var text = game.add.text(16, 508, "* While the holding SHIFT, PEEK the Camera ", { fontSize: '32px', fill: '#000' });
-		var text = game.add.text(16, 548, '  using "W,A,S,D" to nudge the camera just a little.', { fontSize: '32px', fill: '#000' });
-		text.addColor('#ffff00', 8);
-		text.addColor('#000', 17);
+		// //Adds instruction text
+		// var text = game.add.text(16, 18, 'Plant Platformer', { fontSize: '32px', fill: '#000'});
+		// text.addColor('#fff', 0);
 
-		var text = game.add.text(16, 678, 'Try to make it to the platform on the other side!', { fontSize: '32px', fill: '#000' });
-		var text = game.add.text(16, 718, 'Press "SPACE" to start', { fontSize: '32px', fill: '#000' });
-		text.addColor('#fff', 0);
+		// var text = game.add.text(16, 108, '* Use the "W,A,S,D" to move and jump, Hold the "W"', { fontSize: '32px', fill: '#000' });
+		// //  And now we'll color in some of the letters
+  //   	text.addColor('#ffff00', 10);
+  //   	text.addColor('#000', 20);
+  //   	text.addColor('#ffff00', 50);
+		// var text = game.add.text(16, 148, '  key while falling for a slow descent. ', { fontSize: '32px', fill: '#000' });
+
+		// var text = game.add.text(16, 208, '* Press "SPACE" to switch forms. While in the "BLUE"', { fontSize: '32px', fill: '#000' });
+		// text.addColor('#ffff00', 8);
+		// text.addColor('#000', 15);
+		// text.addColor('#0000FF', 45);
+		// var text = game.add.text(16, 248, '  form you cannot move but you will be able to click', { fontSize: '32px', fill: '#000' });
+		// var text = game.add.text(16, 288, '  and drag on the brown earth to grow platforms!', { fontSize: '32px', fill: '#000' });
+		
+		// var text = game.add.text(16, 358, '* If a Plant isnt to your liking, click on the plant', { fontSize: '32px', fill: '#000' });
+		// var text = game.add.text(16, 398, '  and press "R" to reset your most recent active plant! ', { fontSize: '32px', fill: '#000' });
+		// text.addColor('#ffff00', 12);
+		// text.addColor('#000', 15);
+		// var text = game.add.text(16, 438, '  (plant highlighted by yellow)', { fontSize: '32px', fill: '#000' });
+
+		// var text = game.add.text(16, 508, "* While the holding SHIFT, PEEK the Camera ", { fontSize: '32px', fill: '#000' });
+		// var text = game.add.text(16, 548, '  using "W,A,S,D" to nudge the camera just a little.', { fontSize: '32px', fill: '#000' });
+		// text.addColor('#ffff00', 8);
+		// text.addColor('#000', 17);
+
+		// var text = game.add.text(16, 678, 'Try to make it to the platform on the other side!', { fontSize: '32px', fill: '#000' });
+		// var text = game.add.text(16, 718, 'Press "SPACE" to start', { fontSize: '32px', fill: '#000' });
+		// text.addColor('#fff', 0);
 	},
 
 	update: function() {
-		if(spaceKey.isDown)
-		{
-			//Starts the gameplay state if space is held down/pressed
-			game.state.start('GamePlay', true, false, 0);
-		}
+		// if(spaceKey.isDown)
+		// {
+		// 	//Starts the gameplay state if space is held down/pressed
+		// 	game.state.start('Tutorial', true, false, 0);
+		// }
 	}
 }
 
@@ -203,25 +243,55 @@ Tutorial.prototype = {
 	
 	create: function(){
 		//sets game background color to navy blue
-		game.stage.backgroundColor = "#add8e6"; 
+		game.stage.backgroundColor = "#235347"; 
 		
 		//enable arcade physics
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 		
 		//Set game world size to double the viewable area of the game
 		game.world.setBounds(0, 0, game.width*7, game.height*2);
+
+		var tutfarground = game.add.sprite(0, 0, 'tutfarground');
+		var tutbforeground = game.add.sprite(0, 0, 'tutbforeground');
+		// var tutforeground = game.add.sprite(0, 0, 'tutforeground');
+
+		//leaf background stuff
+	    var back_emitter = game.add.emitter(game.world.centerX, -32, 500);
+    	back_emitter.makeParticles(['leaf2']);
+	    back_emitter.maxParticleScale = 0.35;
+	    back_emitter.minParticleScale = 0.15;
+	    back_emitter.maxParticleAlpha = 0.75;
+	    back_emitter.minParticleAlpha = 0.5;
+	    back_emitter.setYSpeed(20, 100);
+	    back_emitter.gravity = 0;
+	    back_emitter.width = game.world.width * 1.25;
+	    back_emitter.minRotation = 0;
+	    back_emitter.maxRotation = 40;
+
+	    //  This will emit a quantity of 1 particle every 450ms. Each particle will live for 30000ms.
+	    back_emitter.start(false, 30000, 450);
 		
 		//makes the player object and adds it to its group
 		//adds bounce to the player
 		//sets player gravity
 		players = game.add.group();
 		players.enableBody = true;
-		player = players.create(164, game.world.height-250, 'player');
+		player = players.create(264, game.world.height-190, 'player');
 		player.anchor.set(0.5);
 		player.body.bounce.y = .02;
 		player.body.gravity.y = 200;
 		player.body.maxVelocity = 0;
 		player.body.syncBounds = true;
+
+		//player eyes
+		pEyes = game.add.sprite(player.x, player.y, 'eyes');
+		pEyes.anchor.set(0.5);
+
+		//creating the pulse behind the player then in light mode
+		plight = game.add.sprite(player.x, player.y, 'lightfade');
+		plight.anchor.set(0.5);
+		plight.alpha = 0.0;
+		plight.moveDown();
 
 		//where the camera is connected to and controlled manually if needed
 		invisCameraBody = game.add.sprite(player.x, player.y, 'box');
@@ -258,19 +328,26 @@ Tutorial.prototype = {
 		createLedge(632, game.world.height-221, 'platform', 1, 1);
 		createLedge(1064, game.world.height-317, 'platform', 1, 1);
 		createLedge(1464, game.world.height-317, 'platform', 1, 1);
-		createLedge(2450, game.world.height-200, 'platform', 1, 1);
-		createLedge(2850, game.world.height-200, 'platform', 1, 1);
-		createLedge(3582, game.world.height-532, 'platform', 1, 1);
-		createLedge(3982, game.world.height-532, 'platform', 1, 1);
-		createLedge(4760, game.world.height-580, 'platform', 0.25, 1); //plant platform
+
+		createLedge(2300, game.world.height-317, 'platform', 1, 1);
+		createLedge(2550, game.world.height-317, 'platform', 1, 1);
+		createLedge(2850, game.world.height-317, 'platform', 1, 1);
+
+		createLedge(3623, game.world.height-725, 'platform', 1, 1);
+		createLedge(4023, game.world.height-725, 'platform', 0.75, 1);
+
+		createLedge(4760, game.world.height-1205, 'platform', 0.25, 100); //plant platform
+
 		createLedge(5650, game.world.height-532, 'platform', 1, 1);
 		createLedge(6700, game.world.height - 532, 'platform', 1, 1);
 
+		var tutforeground = game.add.sprite(0, 0, 'tutforeground');
+
 		//Create the plants in positions modeled after the paper prototype(some modifications)
 		//addLightPulse(3550, game.world.height - 516);
-		createPlant(3550, game.world.height - 516);
+		createPlant(3550, game.world.height - 700);
 		//addLightPulse(4810, game.world.height - 530);
-		createPlant(4810, game.world.height - 530);
+		createPlant(4810, game.world.height - 1200);
 		createPlant(6600, game.world.height - 530);
 
 		//temp sprite to make it look like a pit at the botom of the screen
@@ -314,21 +391,49 @@ Tutorial.prototype = {
 		exits = game.add.group();
 		exits.enableBody = true;
 		var exit = exits.create(7000, 1000, 'exit');
+		exits.immovable = true;
 		exit.anchor.set(0.5);
+
+		//var tutplatforms = game.add.sprite(0, 0, 'tutplatforms');
+		var plantlocations = game.add.sprite(0, 0, 'tutplantlocations');
+		var tutfloor = game.add.sprite(0, -192, 'tutfloor');
+
+		// //Tutorial Text
+		// var text = game.add.text(132, game.world.height-164, '(Left) A', { fontSize: '20px', fill: '#fff' });
+		// text.anchor.set(0.5);
+		// //game.add.text(133, game.world.height - 500, 'S', { fontSize: '32px', fill: '#fff' });
+		// var text = game.add.text(392, game.world.height-164, 'D (Right)', { fontSize: '20px', fill: '#fff' });
+		// text.anchor.set(0.5);
+		// var text = game.add.text(628, game.world.height-210, 'W (Jump)', { fontSize: '32px', fill: '#fff' });
+
+		cameraMoving = false;
+		isLightMode = false;
+
+		fadeIn();
 		
-		//creation of UI elements
-		UIGroup = game.add.group();
-		createUIElement(game.camera.width-50, 50, 'ui');
-		createUIElement(game.camera.width-100, 50, 'ui');
-		createUIElement(game.camera.width-150, 50, 'ui');
+		// //creation of UI elements
+		// UIGroup = game.add.group();
+		// createUIElement(game.camera.width-50, 50, 'ui');
+		// createUIElement(game.camera.width-100, 50, 'ui');
+		// createUIElement(game.camera.width-150, 50, 'ui');
 	
 	},
 	
 	update: function(){
 
+		//slight background paralax scrolling
+		//tutfarground.x = -game.camera.x/12;
+
 		//moves the invis camera body to the player
 		invisCameraBody.x = player.x;
 		invisCameraBody.y = player.y;
+
+		//moving player light pulse
+		plight.x = player.x;
+		plight.y = player.y;
+
+		pEyes.x = player.x;
+		pEyes.y = (player.y+4);
 
 		//sets player velocity to 0 if nothing is being pressed
 		player.body.velocity.x = 0;
@@ -346,7 +451,7 @@ Tutorial.prototype = {
 		//through all existing plant groups to see
 		//which one is being clicked, so that the 
 		//right plant will grow
-		if (game.input.activePointer.isDown && isLightMode){
+		if (game.input.activePointer.isDown){
 			plants.forEach(identifyPlantGroup);
 			if(activeGroup != undefined){
 				//console.log(activeGroup);
@@ -361,33 +466,46 @@ Tutorial.prototype = {
 
 		//upon pressing the spacebar, you can alternate
 		//from player mode and light mode as long as player is on a surface
-		if (spaceKey.downDuration(1) && player.body.touching.down && isLightMode == false)
+		if (spaceKey.downDuration(1) && player.body.touching.down && isLightMode == false && !cameraMoving)
 		{
 			isLightMode = true;
 			player.loadTexture('lightMode');
+			blink = game.add.tween(plight).to( { alpha: 0.45 }, 1500, Phaser.Easing.Linear.None, true, 0, 1500, true);
+			//blink.pause();
+			blinkScale = game.add.tween(plight.scale).to( { x: 2.5, y: 2.5 }, 1500, Phaser.Easing.Linear.None, true, 0, 1500, true);
+			//blinkScale.pause();
 		}
-		else if(spaceKey.downDuration(1) && isLightMode == true){
+		else if(spaceKey.downDuration(1) && isLightMode == true && !cameraMoving){
 			isLightMode = false;
 			player.loadTexture('player');
+			blink.stop();
+			blinkScale.stop();
+			plight.alpha = 0;
+			plight.scale.x = 1;
+			plight.scale.y = 1;
 		}
-
-		if(isLightMode == true){
+		//a bunch of camera checks to prevent the player from moving
+		if(isLightMode == true && !cameraMoving){
 			//camera Panning
 			cameraPanControls();
 		}
-		else{
+		else if(!cameraMoving){
 			//the following if/else statements allows for player movement
-			if (game.input.keyboard.isDown(Phaser.Keyboard.A) && !isLightMode)
+			if (game.input.keyboard.isDown(Phaser.Keyboard.A) && !isLightMode){
 				player.body.velocity.x = -150;
-
-			else if (game.input.keyboard.isDown(Phaser.Keyboard.D) && !isLightMode)
+				pEyes.x -= 14;
+			}
+			else if (game.input.keyboard.isDown(Phaser.Keyboard.D) && !isLightMode){
 				player.body.velocity.x = 150;
+				pEyes.x += 14;
+			}
 
 			//Jumping, works if touching the ground and not in light mode
 			if (game.input.keyboard.isDown(Phaser.Keyboard.W) && !isLightMode && player.body.touching.down){
 				player.body.velocity.y = -225;
 				pop.play();
 				plantImpacted = false;
+				// pEyes.y -= 8;
 			}
 		}
 
@@ -395,6 +513,7 @@ Tutorial.prototype = {
 		if(player.body.velocity.y > 50 && game.input.keyboard.isDown(Phaser.Keyboard.W))
 		{
 			player.body.velocity.y = 50;
+			//pEyes.y -= 8;
 		}
 
 		//if the player falls to the bottom of the screen it resets them to starting point
@@ -402,12 +521,22 @@ Tutorial.prototype = {
 		if(player.y > game.world.height+player.height){
 			oof.play();
 			
-			player.reset(164,game.world.height-250);
+			player.reset(264, game.world.height-250);
 
 			isLightMode = true;
+			cameraMoving = true;
+			player.loadTexture('player');
+			if(blink != undefined){
+				blink.stop();
+				blinkScale.stop();
+			}
+			plight.alpha = 0;
+			plight.scale.x = 1;
+			plight.scale.y = 1;
 
 			game.time.events.add(2000, function() { 
 				isLightMode = false;
+				cameraMoving = false;
 			});
 
 			flash(player);
@@ -426,15 +555,15 @@ Tutorial.prototype = {
 		if(game.physics.arcade.collide(player, exits))
 		{
 			songLoop.destroy();
-			game.state.start('GamePlay', true, false, 0);
+			fadeOutTo('GamePlay');
 		}
 
 		//used for debugging purposes
-		render();
+		//render();
 	}
 }
-	
-//Gameplay State
+
+//Gameplay State --------------------------------------------------------------------------------------------------------
 var GamePlay = function(game) {};
 GamePlay.prototype = {
 	
@@ -442,12 +571,11 @@ GamePlay.prototype = {
 
 		wallCollision = false;
 
-		//sets game background color to navy blue
+		//sets game background color to light dark green
 		game.stage.backgroundColor = "#235347"; 
 		
 		//enable arcade physics
 		game.physics.startSystem(Phaser.Physics.ARCADE);
-		
 		
 		//Set game world size to double the viewable area of the game
 		game.world.setBounds(0, 0, game.width*2, game.height*2);
@@ -478,13 +606,17 @@ GamePlay.prototype = {
 		//sets player gravity
 		players = game.add.group();
 		players.enableBody = true;
+		//player = players.create(60, game.world.height-189, 'player');
 		player = players.create(-64, game.world.height-157, 'player');
 		player.anchor.set(0.5);
 		player.body.bounce.y = .02;
 		player.body.gravity.y = 200;
 		player.body.maxVelocity = 0;
 		player.body.syncBounds = true;
-		
+
+		//player eyes
+		pEyes = game.add.sprite(player.x, player.y, 'eyes');
+		pEyes.anchor.set(0.5);
 
 		//creating the pulse behind the player then in light mode
 		plight = game.add.sprite(player.x, player.y, 'lightfade');
@@ -537,6 +669,7 @@ GamePlay.prototype = {
 		exits = game.add.group();
 		exits.enableBody = true;
 		var exit = exits.create(game.world.width - 100, 210, 'exit');
+		exit.immovable = true;
 		exit.anchor.set(0.5);
 
 		//temp sprite to make it look like a pit at the botom of the screen
@@ -553,7 +686,7 @@ GamePlay.prototype = {
 		//creates the walls as a passage block (seen on screen)
 		createWall(1015, -253, 'box', 1, 10, 0);
 		//createWall(239, -183, 'box', 1, 10, -32);
-		//createWall(616, 615, 'box', 3.9, 35, 0);
+		createWall(616, 615, 'box', 3.9, 35, 0);
 		//createWall(625, 643, 'box', 1, 35, 5);
 		//createWall(703, 643, 'box', 1, 35, -3);
 
@@ -595,6 +728,7 @@ GamePlay.prototype = {
 		}, this);
 		game.physics.arcade.moveToXY(player , 80, game.world.height-189, 60, 2000)//player entry animation
 		timer.start();
+		
 		game.time.events.add(3000, function() { 
 			zoomLoop = game.time.events.repeat(10, 200, cameraZoomOut, this);
 		});
@@ -603,18 +737,21 @@ GamePlay.prototype = {
 			isLightMode = true;
 			//cameraMoving = false;
 		});
+
+		fadeIn();
 	
 	},
 
 	update: function(){
-		
+
 		//check for spacebar input to zoom out camera
 		if(isLightMode == true && !cameraMoving && readyStart == false){
 			console.log('press space to start');
 			isLightMode = false;
 			readyStart = true;
 			cameraMoving = true;
-			startText = game.add.text(game.width/2, game.height/2 - 50, 'Press Space to start', { fontSize: '64px', fill: '#00EE00' });
+			startText = game.add.text(game.world.width/2, game.world.height/2 - 400, 'Press Space to start', { fontSize: '64px', fill: '#00EE00' });
+			startText.anchor.set(0.5);
 		}
 		if (spaceKey.downDuration(1) && cameraMoving && isLightMode == false && readyStart == true){
 				
@@ -636,7 +773,6 @@ GamePlay.prototype = {
 					console.log(wallCollision);
 				});
 
-
 		}
 
 		//slight background paralax scrolling
@@ -650,18 +786,26 @@ GamePlay.prototype = {
 		plight.x = player.x;
 		plight.y = player.y;
 
+		pEyes.x = player.x;
+		pEyes.y = (player.y+4);
+
+		//sets player velocity to 0 if nothing is being pressed
+		//player.body.velocity.x = 0;
+		//player.body.velocity.y = 0; removed so gravity works
+
 		//collision detection for player and plants
 		//collision detection for ground/platforms and player
 		game.physics.arcade.collide(player, plantMatter, plantSound);
 		game.physics.arcade.collide(player, platforms);
 		game.physics.arcade.collide(player, walls, null, function(){ return wallCollision}); //Collision detection for walls, added like so so player can slide in from offscreen.
 
+
 		//isDown will be true if the left click
 		//is down. The forEach function will browse
 		//through all existing plant groups to see
 		//which one is being clicked, so that the 
 		//right plant will grow
-		if (game.input.activePointer.isDown && !cameraMoving && isLightMode){
+		if (game.input.activePointer.isDown && !cameraMoving){
 			plants.forEach(identifyPlantGroup);
 			if(activeGroup != undefined){
 				//console.log(activeGroup);
@@ -702,13 +846,17 @@ GamePlay.prototype = {
 		}
 		else if(!cameraMoving){
 			//the following if/else statements allows for player movement
-			if (game.input.keyboard.isDown(Phaser.Keyboard.A) && !isLightMode)
+			if (game.input.keyboard.isDown(Phaser.Keyboard.A) && !isLightMode){
 				player.body.velocity.x = -150;
+				pEyes.x -= 14;
+			}
 
-			else if (game.input.keyboard.isDown(Phaser.Keyboard.D) && !isLightMode)
+			else if (game.input.keyboard.isDown(Phaser.Keyboard.D) && !isLightMode){
 				player.body.velocity.x = 150;
-			else
-			{
+				pEyes.x += 14;
+			}
+			else{
+				//sets player velocity to 0 if nothing is being pressed
 				player.body.velocity.x = 0;
 			}
 
@@ -860,20 +1008,20 @@ function identifyPlantGroup(plantGroup){
 		if(plantEmitter == undefined || plantEmitter.game == null){
 			plantEmitter = game.add.emitter(plantGroup.getBottom().x, plantGroup.getBottom().y, 100);
 
-		    plantEmitter.makeParticles('lightfade');
+		    plantEmitter.makeParticles('particle');
 
 		    plantEmitter.setRotation(0, 0);
-		    plantEmitter.maxParticleScale = 0.225;
+		    plantEmitter.maxParticleScale = 0.23;
 		    plantEmitter.minParticleScale = 0.10;
-		    plantEmitter.setAlpha(0.1,0.5);
+		    plantEmitter.setAlpha(0.1,0.45);
 		    plantEmitter.tint = 0xFFFF00;
-		    plantEmitter.gravity = -10;
+		    plantEmitter.gravity = -120;
 
 	   		//	false means don't explode all the sprites at once, but instead release at a rate of one particle per 250ms
 	    	//	The 2500 value is the lifespan of each particle before it's killed
-	    	plantEmitter.start(false, 2500, 250);
+	    	plantEmitter.start(false, 2000, 200);
     	}
-    	//console.log(plantEmitter);
+    	//console.log(plantEmitter); 
 	}
 	else{
 		plant.destroy();
@@ -916,8 +1064,15 @@ function growPlant(plantGroup){
 				plant.anchor.set(0.5);
 				plant.scale.set(plantScale,plantScale);
 				plant.body.syncBounds = true;
-				if(plantGroup.total == 100){
-					plant.tint = 0xffff00;
+				if(plantGroup.total > 50 && plantGroup.total < 100){
+					plant.tint = ((((50-plantGroup.total))*3) * 0xFFFFFF);
+				}
+				else if(plantGroup.total <= 50){
+					plant.loadTexture('plant2');;
+				}
+				else if(plantGroup.total == 100){
+					plant.loadTexture('endBox');
+					plant.alpha = 0.5;
 				}
 				plantMatter.push(plant);
 			}
@@ -991,6 +1146,8 @@ function cameraPanControls(){
 		}
 		else
 			invisCameraBody.y -= 250;
+
+		pEyes.y -= 4;
 	}
 	if(game.input.keyboard.isDown(Phaser.Keyboard.A)){
 		var temp = (game.world.width-350) - invisCameraBody.x;
@@ -999,6 +1156,8 @@ function cameraPanControls(){
 		}
 		else
 			invisCameraBody.x -= 250;
+
+		pEyes.x -= 12;
 	}
 	if(game.input.keyboard.isDown(Phaser.Keyboard.S)){
 		var temp = 250 - invisCameraBody.y;
@@ -1007,6 +1166,8 @@ function cameraPanControls(){
 		}
 		else
 			invisCameraBody.y += 250;
+
+		pEyes.y += 2;
 	}
 	if(game.input.keyboard.isDown(Phaser.Keyboard.D)){
 		var temp = 350 - invisCameraBody.x;
@@ -1015,6 +1176,8 @@ function cameraPanControls(){
 		}
 		else
 			invisCameraBody.x += 250;	
+
+		pEyes.x += 12;
 	}
 }
 
@@ -1110,7 +1273,7 @@ function cameraZoomIn(){
 
         bodyAnchor += 0.0025;
         player.anchor.set(bodyAnchor);
-        plight.anchor.set(bodyAnchor);
+        pEyes.anchor.set(bodyAnchor);
         //console.log(bodyAnchor);
 
         cameraScale += 0.005;
@@ -1126,6 +1289,7 @@ function cameraZoomOut(){
 
         bodyAnchor -= 0.0025;
         player.anchor.set(bodyAnchor);
+        pEyes.anchor.set(bodyAnchor);
         //plight.anchor.set(bodyAnchor);
         //console.log(bodyAnchor);
 
@@ -1150,6 +1314,32 @@ function flash(sprite){
 		
 	},this);
     //game.add.tween(sprite).to( { alpha: 0 }, 250, Phaser.Easing.Linear.None, true);
+}
+
+function fadeIn(){
+	//the black-in effect
+        var blackout = game.add.sprite(0,0, 'blackout');
+        //blackout.anchor.set(0.5);
+        // blackout.scale.x = 1.5;
+        // blackout.scale.y = 1.5;
+        blackout.alpha = 1.0;
+        //blackout.bringToTop();
+        game.time.events.add(Phaser.Timer.SECOND * 1.25, function() { game.add.tween(blackout).to({ alpha: 0 }, 1500, "Linear", true);});
+        //game.add.tween(blackout).to({ alpha: 0 }, 2000, "Linear", true);
+}
+
+function fadeOutTo(newGameState){
+	//the black-in effect
+        var blackout = game.add.sprite(0, 0, 'blackout');
+        //blackout.anchor.set(0.5);
+        // blackout.scale.x = 1.5;
+        // blackout.scale.y = 1.5;
+        blackout.alpha = 0.0;
+        //blackout.bringToTop();
+        game.time.events.add(Phaser.Timer.SECOND * 0, function() { game.add.tween(blackout).to({ alpha: 1 }, 1500, "Linear", true);});
+        game.time.events.add(Phaser.Timer.SECOND * 1.75, function() { game.state.start(newGameState, true, false, 0);});
+
+        // game.add.tween(blackout).to({ alpha: 1 }, 2000, "Linear", true);
 }
 
 // STATES -----------------------------------------------------------------------------------------------
