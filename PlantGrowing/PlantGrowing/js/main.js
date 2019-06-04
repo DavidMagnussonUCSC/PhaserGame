@@ -367,26 +367,27 @@ Tutorial.prototype = {
 		createWall(1032, game.world.height-317, 'box', 1, 4);
 
 		//Tutorial Text
-		game.add.text(32, game.world.height - 600, 'Use W,A,S,D to move', { fontSize: '32px', fill: '#000' });
-		game.add.text(32, game.world.height - 500, 'Use the W arrow to jump! (Hold for slow fall)', { fontSize: '32px', fill: '#000' });
-		game.add.text(1150, game.world.height - 600, 'You can peek the camera to view things a bit away!', { fontSize: '32px', fill: '#000' });
-		game.add.text(1150, game.world.height - 500, 'Press space to switch forms to root yourself and stop moving', { fontSize: '32px', fill: '#000' });
-		game.add.text(1150, game.world.height - 400, 'While rooted, Use the WASD keys to peek the camera', { fontSize: '32px', fill: '#000' });
-		game.add.text(2100, game.world.height - 600, 'Jump off the edge and hold the jump', { fontSize: '22px', fill: '#000' });
-		game.add.text(2100, game.world.height - 550, 'key to slow fall to this platform!', { fontSize: '22px', fill: '#000' });
-		game.add.text(3300, game.world.height - 400, 'While in the rooted form, you can grow plants!', { fontSize: '16px', fill: '#000' });
-		game.add.text(3300, game.world.height - 325, 'Click and drag on glowing plant nodes', { fontSize: '16px', fill: '#000' });
-		game.add.text(3300, game.world.height - 300, 'to grow plant platforms!', { fontSize: '16px', fill: '#000' });
-		game.add.text(3300, game.world.height - 225, '(If you mess up, press R to reset the last', { fontSize: '16px', fill: '#000' });
-		game.add.text(3300, game.world.height - 200, 'clicked plant)', { fontSize: '16px', fill: '#000' });
-		//game.add.text(3300, game.world.height - 150, '(Unfortunately, roots cannot be stood on as', { fontSize: '16px', fill: '#000' });
-		//game.add.text(3300, game.world.height - 125, 'they are too fragile', { fontSize: '16px', fill: '#000' });
-		game.add.text(4200, game.world.height - 480	, 'You can grow a plant, reset it (R), and', { fontSize: '22px', fill: '#000' });
-		game.add.text(4200, game.world.height - 450	, 'grow it another way to progress!', { fontSize: '22px', fill: '#000' });
-		game.add.text(4200, game.world.height - 420	, 'Try it now!', { fontSize: '22px', fill: '#000' });
-		game.add.text(5800, game.world.height - 800	, 'Good job, now heres one last trick!', { fontSize: '22px', fill: '#000' });
-		game.add.text(5800, game.world.height - 750	, 'While peeking with the Camera, you can grow plants you see!', { fontSize: '22px', fill: '#000' });
-		game.add.text(6750, game.world.height - 800, 'Good luck!', { fontSize: '22px', fill: '#000' });
+		game.add.text(32, game.world.height - 600, 'Use W,A,S,D to move', { fontSize: '32px', fill: '#f3f38c' });
+		game.add.text(32, game.world.height - 500, 'Use the W arrow to jump! (Hold for slow fall)', { fontSize: '32px', fill: '#f3f38c' });
+		game.add.text(1150, game.world.height - 600, 'You can peek the camera to view things a bit away!', { fontSize: '32px', fill: '#f3f38c' });
+		game.add.text(1150, game.world.height - 500, 'Press space to switch forms to root yourself and stop moving', { fontSize: '32px', fill: '#f3f38c' });
+		game.add.text(1150, game.world.height - 400, 'While rooted, Use the WASD keys to peek the camera', { fontSize: '32px', fill: '#f3f38c' });
+		game.add.text(2100, game.world.height - 600, 'Jump off the edge and hold the jump', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(2100, game.world.height - 550, 'key to slow fall to this platform!', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(3300, game.world.height - 400, 'While in the rooted form,', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3300, game.world.height - 375, 'you can grow plants!', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3300, game.world.height - 325, 'Click and drag on glowing plant nodes', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3300, game.world.height - 300, 'to grow plant platforms!', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3300, game.world.height - 225, '(If you mess up, press R to reset the last', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3300, game.world.height - 200, 'clicked plant)', { fontSize: '16px', fill: '#f3f38c' });
+		//game.add.text(3300, game.world.height - 150, '(Unfortunately, roots cannot be stood on as', { fontSize: '16px', fill: '#f3f38c' });
+		//game.add.text(3300, game.world.height - 125, 'they are too fragile', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(4340, game.world.height - 480	, 'You can grow a plant, reset it (R), and', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(4340, game.world.height - 450	, 'grow it another way to progress!', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(4340, game.world.height - 420	, 'Try it now!', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(5800, game.world.height - 800	, 'Good job, now heres one last trick!', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(5800, game.world.height - 750	, 'While peeking with the Camera, you can grow plants you see!', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(6750, game.world.height - 800, 'Good luck!', { fontSize: '22px', fill: '#f3f38c' });
 		
 		//adds exit door at the end of the level to trigger GameOver
 		exits = game.add.group();
