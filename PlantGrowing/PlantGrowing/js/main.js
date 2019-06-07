@@ -437,10 +437,6 @@ Tutorial.prototype = {
 		pEyes.x = player.x;
 		pEyes.y = (player.y+4);
 
-		//sets player velocity to 0 if nothing is being pressed
-		player.body.velocity.x = 0;
-		//player.body.velocity.y = 0; removed so gravity works
-
 		//collision detection for player and plants
 		//collision detection for ground/platforms and player
 		//collision detection for walls
@@ -488,6 +484,11 @@ Tutorial.prototype = {
 		}
 		//a bunch of camera checks to prevent the player from moving
 		if(isLightMode == true && !cameraMoving){
+			//prevents player sliding when changing forms
+			if(player.body.velocity.x != 0)
+			{
+				player.body.velocity.x = 0;
+			}
 			//camera Panning
 			cameraPanControls();
 		}
@@ -500,6 +501,11 @@ Tutorial.prototype = {
 			else if (game.input.keyboard.isDown(Phaser.Keyboard.D) && !isLightMode){
 				player.body.velocity.x = 150;
 				pEyes.x += 14;
+			}
+			else
+			{
+				//sets player velocity to 0 if nothing is being pressed
+				player.body.velocity.x = 0;
 			}
 
 			//Jumping, works if touching the ground and not in light mode
@@ -849,6 +855,11 @@ GamePlay.prototype = {
 		}
 		//a bunch of camera checks to prevent the player from moving
 		if(isLightMode == true && !cameraMoving){
+			//prevents player sliding when changing forms
+			if(player.body.velocity.x != 0)
+			{
+				player.body.velocity.x = 0;
+			}
 			//camera Panning
 			cameraPanControls();
 		}
