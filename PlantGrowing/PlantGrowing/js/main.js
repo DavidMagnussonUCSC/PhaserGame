@@ -247,6 +247,7 @@ Tutorial.prototype = {
 	create: function(){
 		//sets game background color to navy blue
 		game.stage.backgroundColor = "#235347"; 
+		game.stage.backgroundColor = "#fff"; 
 		
 		//enable arcade physics
 		game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -254,8 +255,8 @@ Tutorial.prototype = {
 		//Set game world size to double the viewable area of the game
 		game.world.setBounds(0, 0, game.width*7, game.height*2);
 
-		var tutfarground = game.add.sprite(0, 0, 'tutfarground');
-		var tutbforeground = game.add.sprite(0, 0, 'tutbforeground');
+		//var tutfarground = game.add.sprite(0, 0, 'tutfarground');
+		//var tutbforeground = game.add.sprite(0, 0, 'tutbforeground');
 		// var tutforeground = game.add.sprite(0, 0, 'tutforeground');
 
 		//leaf background stuff
@@ -326,32 +327,34 @@ Tutorial.prototype = {
 		//Adds platforms Group and enables physics for them
 		platforms = game.add.group();
 		platforms.enableBody = true;
-		createLedge(-200,game.world.height-125, 'platform', 1, 1);
-		createLedge(200, game.world.height-125, 'platform', 1, 1);
-		createLedge(632, game.world.height-221, 'platform', 1, 1);
-		createLedge(1064, game.world.height-317, 'platform', 1, 1);
-		createLedge(1464, game.world.height-317, 'platform', 1, 1);
+		createLedge(-200,game.world.height-125, 'platform', 1.1, 100);
+		createLedge(200, game.world.height-125, 'platform', 1.1, 100);
+		createLedge(632, game.world.height-221, 'platform', 1.1, 100);
+		createLedge(1064, game.world.height-317, 'platform', 1.1, 100);
+		createLedge(1464, game.world.height-317, 'platform', 1, 100);
 
-		createLedge(2300, game.world.height-317, 'platform', 1, 1);
-		createLedge(2550, game.world.height-317, 'platform', 1, 1);
-		createLedge(2850, game.world.height-317, 'platform', 1, 1);
+		createLedge(2400, game.world.height-217, 'platform', 1, 100);
+		createLedge(3050, game.world.height-217, 'platform', 1, 100);
+		//createLedge(2850, game.world.height-317, 'platform', 1, 1);
 
-		createLedge(3623, game.world.height-725, 'platform', 1, 1);
-		createLedge(4023, game.world.height-725, 'platform', 0.75, 1);
+		createLedge(3600, game.world.height-400, 'platform', 0.5, 100);
+		createLedge(3700, game.world.height-280, 'platform', 0.5, 100);
+		createLedge(3800, game.world.height-175, 'platform', 1, 100);
 
-		createLedge(4760, game.world.height-1205, 'platform', 0.25, 100); //plant platform
+		createLedge(4810, game.world.height-700, 'platform', 1, 100); //plant platform
+		createLedge(4950, game.world.height-622, 'platform', 1, 100);
+		createLedge(5150, game.world.height-515, 'platform', 1, 100);
 
-		createLedge(5650, game.world.height-532, 'platform', 1, 1);
-		createLedge(6700, game.world.height - 532, 'platform', 1, 1);
+		createLedge(6200, game.world.height - 512, 'platform', 0.1, 100);
+		createLedge(6850, game.world.height - 532, 'platform', 1, 100);
 
-		var tutforeground = game.add.sprite(0, 0, 'tutforeground');
+		//var tutforeground = game.add.sprite(0, 0, 'tutforeground');
 
 		//Create the plants in positions modeled after the paper prototype(some modifications)
 		//addLightPulse(3550, game.world.height - 516);
-		createPlant(3550, game.world.height - 700);
-		//addLightPulse(4810, game.world.height - 530);
-		createPlant(4810, game.world.height - 1200);
-		createPlant(6600, game.world.height - 530);
+		createPlant(3600, game.world.height - 400);
+		createPlant(4795, game.world.height - 690);
+		createPlant(6220, game.world.height - 490);
 
 		//temp sprite to make it look like a pit at the botom of the screen
 		var pit = game.add.sprite(0, game.world.height-200, 'fade');
@@ -362,11 +365,11 @@ Tutorial.prototype = {
 		walls = game.add.group();
 		walls.enableBody = true;
 		createWall(-32, -game.world.height/2, 'box', 1, 75, 0);
-		createWall(game.world.width+32, -game.world.height/2, 'box', 1, 75, 0);
+		createWall(game.world.width+1, -game.world.height/2, 'box', 1, 75, 0);
 
 		//creates the walls as a passage block (seen on screen)
-		createWall(600, game.world.height-221, 'box', 1, 4);
-		createWall(1032, game.world.height-317, 'box', 1, 4);
+		//createWall(600, game.world.height-221, 'box', 1, 4);
+		//createWall(1032, game.world.height-317, 'box', 1, 4);
 
 		//Tutorial Text
 		game.add.text(32, game.world.height - 600, 'Use W,A,S,D to move', { fontSize: '32px', fill: '#f3f38c' });
@@ -399,8 +402,8 @@ Tutorial.prototype = {
 		exit.anchor.set(0.5);
 
 		//var tutplatforms = game.add.sprite(0, 0, 'tutplatforms');
-		var plantlocations = game.add.sprite(0, 0, 'tutplantlocations');
-		var tutfloor = game.add.sprite(0, -192, 'tutfloor');
+		//var plantlocations = game.add.sprite(0, 0, 'tutplantlocations');
+		//var tutfloor = game.add.sprite(0, -192, 'tutfloor');
 
 		// //Tutorial Text
 		// var text = game.add.text(132, game.world.height-164, '(Left) A', { fontSize: '20px', fill: '#fff' });
@@ -976,7 +979,7 @@ GamePlay.prototype = {
 
 
 		//used for debugging purposes
-		render();
+		//render();
 	}
 }
 
