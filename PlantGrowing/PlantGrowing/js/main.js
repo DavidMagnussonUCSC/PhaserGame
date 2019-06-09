@@ -63,6 +63,9 @@ var exits;
 //has the player hit a plant
 var plantImpacted;
 
+//has the player landed on the ground
+var landed;
+
 //a camera moving check to prevent the player from moving
 var cameraMoving = true;
 
@@ -145,11 +148,14 @@ MainMenu.prototype = {
 
 		//audio setup/assets
 		game.load.path = 'assets/audio/';
-		game.load.audio('pop', 'pop01.mp3');
-		game.load.audio('fastBgMusic', 'Plant_Growing_Song_Fast.wav');
-		game.load.audio('slowBgMusic', 'Plant_Growing_Song_Slow.wav');
-		game.load.audio('oof', 'hurt.mp3');
-		game.load.audio('plantImpact', 'Plant.mp3')
+		game.load.audio('pop', 'Jump_pop.wav');
+		game.load.audio('slowBgMusic', 'Plant_Growing_Song.wav');
+		game.load.audio('oof', 'Death.wav');
+		game.load.audio('plantImpact', 'Plant_landing.wav');
+		game.load.audio('groundImpact', 'Ground_landing.wav');
+		game.load.audio('plantFinished', 'Plant_finishing.wav');
+		game.load.audio('plantGrowing', 'Plant_growing.wav');
+		game.load.audio('plantReset', 'Plant_reset.wav');
 		
 		//allows for access to mouse information
 		game.input.mouse.capture = true;
@@ -373,9 +379,9 @@ Tutorial.prototype = {
 	   
 	    //temp audio fall off map sound
 	    oof = game.add.audio('oof');
-	    oof.volume = 0.1;
+	    oof.volume = 0.5;
 
-	    //temp audio looping background music
+	    //looping background music
 	    songLoop = game.add.audio('slowBgMusic');
 	    songLoop.volume = 0.05;
 	    songLoop.loop = true;
@@ -383,7 +389,24 @@ Tutorial.prototype = {
 
 	    //sound when landing on plants
 		plantImpact = game.add.audio('plantImpact');
-		plantImpact.volume = 0.5;
+		plantImpact.volume = 0.25;
+
+		//sound when landing on ground
+		groundImpact = game.add.audio('groundImpact');
+		groundImpact.volume = 0.5;
+
+		//sound triggered when plant limit is reached
+		plantFinishedSound = game.add.audio('plantFinished');
+		plantFinishedSound.volume = 0.5;
+
+		//sound looped while growing plants
+		plantGrowingSound = game.add.audio('plantGrowing');
+		plantGrowingSound.volume = 0.5;
+		plantGrowingSound.loop = true;
+
+		//sound played when a plant is reset
+		plantResetSound = game.add.audio('plantReset');
+		plantResetSound.volume = 0.5;
 
 		//Adds platforms Group and enables physics for them
 		platforms = game.add.group();
@@ -479,7 +502,7 @@ Tutorial.prototype = {
 		//collision detection for ground/platforms and player
 		//collision detection for walls and exits
 		game.physics.arcade.collide(player, plantMatter, plantSound);
-		game.physics.arcade.collide(player, platforms);
+		game.physics.arcade.collide(player, platforms, landingSound);
 		game.physics.arcade.collide(player, walls, null, wallCollision);
 
 		//isDown will be true if the left click
@@ -494,10 +517,13 @@ Tutorial.prototype = {
 				growPlant(activeGroup);
 			}
 		}
+		else if(plantGrowingSound.isPlaying)
+			plantGrowingSound.stop();
 
 		//resets plant to original state
 		if(rKey.downDuration(1)){
 			resetPlant(activeGroup);
+			plantResetSound.play();
 		}
 
 		//upon pressing the spacebar, you can alternate
@@ -551,6 +577,7 @@ Tutorial.prototype = {
 				player.body.velocity.y = -225;
 				pop.play();
 				plantImpacted = false;
+				landed = false;
 				// pEyes.y -= 8;
 			}
 		}
@@ -698,7 +725,7 @@ GamePlay.prototype = {
 	   
 	    //temp audio fall off map sound
 	    oof = game.add.audio('oof');
-	    oof.volume = 0.1;
+	    oof.volume = 0.5;
 
 	    //slow audio looping background music
 	    songLoop = game.add.audio('slowBgMusic');
@@ -708,7 +735,24 @@ GamePlay.prototype = {
 
 	    //sound when landing on plants
 		plantImpact = game.add.audio('plantImpact');
-		plantImpact.volume = 0.05;
+		plantImpact.volume = 0.25;
+
+		//sound when landing on ground
+		groundImpact = game.add.audio('groundImpact');
+		groundImpact.volume = 0.5;
+
+		//sound triggered when plant limit is reached
+		plantFinishedSound = game.add.audio('plantFinished');
+		plantFinishedSound.volume = 0.5;
+
+		//sound looped while growing plants
+		plantGrowingSound = game.add.audio('plantGrowing');
+		plantGrowingSound.volume = 0.5;
+		plantGrowingSound.loop = true;
+
+		//sound played when a plant is reset
+		plantResetSound = game.add.audio('plantReset');
+		plantResetSound.volume = 0.5;
 
 		//adds exit door at the end of the level to trigger GameOver
 		exits = game.add.group();
@@ -860,7 +904,7 @@ GamePlay.prototype = {
 		//collision detection for player and plants
 		//collision detection for ground/platforms and player
 		game.physics.arcade.collide(player, plantMatter, plantSound);
-		game.physics.arcade.collide(player, platforms);
+		game.physics.arcade.collide(player, platforms, landingSound);
 		game.physics.arcade.collide(player, walls, null, function(){ return wallCollision}); //Collision detection for walls, added like so so player can slide in from offscreen.
 
 
@@ -876,10 +920,13 @@ GamePlay.prototype = {
 				growPlant(activeGroup);
 			}
 		}
+		else if(plantGrowingSound.isPlaying)
+			plantGrowingSound.stop();
 
 		//resets plant to original state
 		if(rKey.downDuration(1) && !cameraMoving){
 			resetPlant(activeGroup);
+			plantResetSound.play();
 		}
 
 		//upon pressing the spacebar, you can alternate
@@ -934,6 +981,7 @@ GamePlay.prototype = {
 				player.body.velocity.y = -225;
 				pop.play();
 				plantImpacted = false;
+				landed = false;
 			}
 		}
 
@@ -1326,6 +1374,9 @@ function growPlant(plantGroup){
 		game.physics.arcade.enable(plant);
 		plant.anchor.set(0.5);
 
+		if (!plantGrowingSound.isPlaying)
+			plantGrowingSound.play();
+
 		//checks if the plant part you just made is connected
 		//to the main plant.
 		//If it isn't, get rid of the theoretical plant
@@ -1351,6 +1402,7 @@ function growPlant(plantGroup){
 				else if(plantGroup.total == 100){
 					plant.loadTexture('endBox');
 					plant.alpha = 0.5;
+					plantFinishedSound.play();
 				}
 				plantMatter.push(plant);
 			}
@@ -1645,6 +1697,14 @@ function fadeOut(delay, duration, newGameState){
         // game.add.tween(blackout).to({ alpha: 1 }, 2000, "Linear", true);
 }
 
+function landingSound(player)
+{
+	if (!landed)
+	{
+		groundImpact.play();
+		landed = true;
+	}
+}
 // STATES -----------------------------------------------------------------------------------------------
 
 
