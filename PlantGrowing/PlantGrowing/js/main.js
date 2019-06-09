@@ -1,4 +1,4 @@
-//ARTG/CMPM 120 game first prototype by Team 49: Anthony Diaz, David Magnusson, and Alain Kassarjian
+//ARTG/CMPM 120 game by Team 49: Anthony Diaz, David Magnusson, and Alain Kassarjian
 // https://github.com/DavidMagnussonUCSC/PhaserGame
 
 //Initialize game
@@ -88,7 +88,7 @@ var readyStart = false;
 var startText;
 
 //Variable for regulating wall collision for player
-var wallCollision;
+var wallCollision = true;
 
 var pEyes;
 
@@ -238,11 +238,6 @@ MainMenu.prototype = {
 	},
 
 	update: function() {
-		// if(spaceKey.isDown)
-		// {
-		// 	//Starts the gameplay state if space is held down/pressed
-		// 	game.state.start('Tutorial', true, false, 0);
-		// }
 	}
 }
 
@@ -456,10 +451,10 @@ Tutorial.prototype = {
 
 		//collision detection for player and plants
 		//collision detection for ground/platforms and player
-		//collision detection for walls
+		//collision detection for walls and exits
 		game.physics.arcade.collide(player, plantMatter, plantSound);
 		game.physics.arcade.collide(player, platforms);
-		game.physics.arcade.collide(player, walls);
+		game.physics.arcade.collide(player, walls, null, wallCollision);
 
 		//isDown will be true if the left click
 		//is down. The forEach function will browse
@@ -584,8 +579,8 @@ Tutorial.prototype = {
 		//Goes to game over screen if exit is reached
 		if(game.physics.arcade.collide(player, exits))
 		{
-			songLoop.destroy();
-			fadeOut(1, 1, 'GamePlay');
+			game.time.events.add(500, function() {fadeOut(1, 1, 'GamePlay');});
+			game.time.events.add(1500, function() {songLoop.destroy();});
 		}
 
 		//used for debugging purposes
@@ -979,10 +974,10 @@ GamePlay.prototype = {
 			});
 
 			game.time.events.add(7500, function() { 
-				songLoop.destroy();
 				readyStart = false;
 				// exitReached = false;
 				fadeOut(1,1,"GameOver");
+				game.time.events.add(1000, function() {songLoop.destroy();});
 			});
 			// songLoop.destroy();
 			// game.state.start('GameOver', true, false, 0);
@@ -1071,8 +1066,13 @@ Credits.prototype = {
 		//cameraReset();
 		
 		//victory and instruction text
-		game.add.text(16, 16, 'Credits', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 68, 'Press space to restart.', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 16, 'Credits:', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 68, 'Made by: Anthony Diaz, Alain Kassarjian, and David Magnusson', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 120, 'Special Thanks to:', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 160, 'Varick, for game conception and other various contributions', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 200, 'Elizabeth and Nathan, for being wonderful and great Professors!', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 240, 'And all the wonderful TAs for 120 in 2019', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 308, 'Press space to return to Main Menu.', { fontSize: '32px', fill: '#000' });
 		
 	},
 
