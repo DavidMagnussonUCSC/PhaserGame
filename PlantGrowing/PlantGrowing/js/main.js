@@ -151,12 +151,13 @@ MainMenu.prototype = {
 		game.load.audio('pop', 'Jump_pop.wav');
 		game.load.audio('slowBgMusic', 'Plant_Growing_Song.wav');
 		game.load.audio('oof', 'Death.wav');
-		game.load.audio('plantImpact', 'Plant_landing.wav');
-		game.load.audio('groundImpact', 'Ground_landing.wav');
+		game.load.audio('plantImpact', 'Plant_landing.mp3');
 		game.load.audio('plantFinished', 'Plant_finishing.wav');
 		game.load.audio('plantGrowing', 'Plant_growing.wav');
 		game.load.audio('plantReset', 'Plant_reset.wav');
 		game.load.audio('backgroundSound', 'Background_noise.wav');
+		game.load.audio('lightModeSoundOn', 'Light_mode_on.wav');
+		game.load.audio('lightModeSoundOff', 'Light_mode_off.wav');
 		
 		//allows for access to mouse information
 		game.input.mouse.capture = true;
@@ -407,7 +408,15 @@ Tutorial.prototype = {
 
 		//ambient background noises
 		ambientSound = game.add.audio('backgroundSound');
-		ambientSound.volume = 0.5;
+		ambientSound.volume = 0.15;
+
+		//sound played when entering light mode
+		lightModeSoundOn = game.add.audio('lightModeSoundOn');
+		lightModeSoundOn.volume = 0.25;
+
+		//sound played when exiting light mode
+		lightModeSoundOff = game.add.audio('lightModeSoundOff');
+		lightModeSoundOff.volume = 0.125;
 
 		//Adds platforms Group and enables physics for them
 		platforms = game.add.group();
@@ -537,6 +546,7 @@ Tutorial.prototype = {
 		//from player mode and light mode as long as player is on a surface
 		if (spaceKey.downDuration(1) && player.body.touching.down && isLightMode == false && !cameraMoving)
 		{
+			lightModeSoundOn.play();
 			isLightMode = true;
 			player.loadTexture('lightMode');
 			blink = game.add.tween(plight).to( { alpha: 0.45 }, 1500, Phaser.Easing.Linear.None, true, 0, 1500, true);
@@ -544,7 +554,9 @@ Tutorial.prototype = {
 			blinkScale = game.add.tween(plight.scale).to( { x: 2.5, y: 2.5 }, 1500, Phaser.Easing.Linear.None, true, 0, 1500, true);
 			//blinkScale.pause();
 		}
-		else if(spaceKey.downDuration(1) && isLightMode == true && !cameraMoving){
+		else if(spaceKey.downDuration(1) && isLightMode == true && !cameraMoving)
+		{
+			lightModeSoundOff.play();
 			isLightMode = false;
 			player.loadTexture('player');
 			blink.stop();
@@ -759,7 +771,15 @@ GamePlay.prototype = {
 
 		//ambient background noises
 		ambientSound = game.add.audio('backgroundSound');
-		ambientSound.volume = 0.5;
+		ambientSound.volume = 0.15;
+
+		//sound played when entering light mode
+		lightModeSoundOn = game.add.audio('lightModeSoundOn');
+		lightModeSoundOn.volume = 0.25;
+
+		//sound played when exiting light mode
+		lightModeSoundOff = game.add.audio('lightModeSoundOff');
+		lightModeSoundOff.volume = 0.125;
 
 		//adds exit door at the end of the level to trigger GameOver
 		exits = game.add.group();
@@ -947,6 +967,7 @@ GamePlay.prototype = {
 		//sets and resets the pulsing player behavior
 		if (spaceKey.downDuration(1) && player.body.touching.down && isLightMode == false && !cameraMoving)
 		{
+			lightModeSoundOn.play();
 			isLightMode = true;
 			player.loadTexture('lightMode');
 			blink = game.add.tween(plight).to( { alpha: 0.45 }, 1500, Phaser.Easing.Linear.None, true, 0, 1500, true);
@@ -954,7 +975,9 @@ GamePlay.prototype = {
 			blinkScale = game.add.tween(plight.scale).to( { x: 2.5, y: 2.5 }, 1500, Phaser.Easing.Linear.None, true, 0, 1500, true);
 			//blinkScale.pause();
 		}
-		else if(spaceKey.downDuration(1) && isLightMode == true && !cameraMoving){
+		else if(spaceKey.downDuration(1) && isLightMode == true && !cameraMoving)
+		{
+			lightModeSoundOff.play();
 			isLightMode = false;
 			player.loadTexture('player');
 			blink.stop();
