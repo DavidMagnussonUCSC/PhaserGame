@@ -156,6 +156,7 @@ MainMenu.prototype = {
 		game.load.audio('plantFinished', 'Plant_finishing.wav');
 		game.load.audio('plantGrowing', 'Plant_growing.wav');
 		game.load.audio('plantReset', 'Plant_reset.wav');
+		game.load.audio('backgroundSound', 'Background_noise.wav');
 		
 		//allows for access to mouse information
 		game.input.mouse.capture = true;
@@ -391,10 +392,6 @@ Tutorial.prototype = {
 		plantImpact = game.add.audio('plantImpact');
 		plantImpact.volume = 0.25;
 
-		//sound when landing on ground
-		groundImpact = game.add.audio('groundImpact');
-		groundImpact.volume = 0.5;
-
 		//sound triggered when plant limit is reached
 		plantFinishedSound = game.add.audio('plantFinished');
 		plantFinishedSound.volume = 0.5;
@@ -407,6 +404,10 @@ Tutorial.prototype = {
 		//sound played when a plant is reset
 		plantResetSound = game.add.audio('plantReset');
 		plantResetSound.volume = 0.5;
+
+		//ambient background noises
+		ambientSound = game.add.audio('backgroundSound');
+		ambientSound.volume = 0.5;
 
 		//Adds platforms Group and enables physics for them
 		platforms = game.add.group();
@@ -502,8 +503,14 @@ Tutorial.prototype = {
 		//collision detection for ground/platforms and player
 		//collision detection for walls and exits
 		game.physics.arcade.collide(player, plantMatter, plantSound);
-		game.physics.arcade.collide(player, platforms, landingSound);
+		game.physics.arcade.collide(player, platforms);
 		game.physics.arcade.collide(player, walls, null, wallCollision);
+
+		//play ambient noises at random intervals
+		if (Math.random() < 0.001)
+    	{
+    		ambientSound.play();
+   		}
 
 		//isDown will be true if the left click
 		//is down. The forEach function will browse
@@ -737,10 +744,6 @@ GamePlay.prototype = {
 		plantImpact = game.add.audio('plantImpact');
 		plantImpact.volume = 0.25;
 
-		//sound when landing on ground
-		groundImpact = game.add.audio('groundImpact');
-		groundImpact.volume = 0.5;
-
 		//sound triggered when plant limit is reached
 		plantFinishedSound = game.add.audio('plantFinished');
 		plantFinishedSound.volume = 0.5;
@@ -753,6 +756,10 @@ GamePlay.prototype = {
 		//sound played when a plant is reset
 		plantResetSound = game.add.audio('plantReset');
 		plantResetSound.volume = 0.5;
+
+		//ambient background noises
+		ambientSound = game.add.audio('backgroundSound');
+		ambientSound.volume = 0.5;
 
 		//adds exit door at the end of the level to trigger GameOver
 		exits = game.add.group();
@@ -888,6 +895,12 @@ GamePlay.prototype = {
 		plight.x = player.x;
 		plight.y = player.y;
 
+		//play ambient noises at random intervals
+		if (Math.random() < 0.001)
+    	{
+    		ambientSound.play();
+   		}
+
 		if(wallCollision == false){
 			pEyes.x = (player.x+14);	
 		}
@@ -904,7 +917,7 @@ GamePlay.prototype = {
 		//collision detection for player and plants
 		//collision detection for ground/platforms and player
 		game.physics.arcade.collide(player, plantMatter, plantSound);
-		game.physics.arcade.collide(player, platforms, landingSound);
+		game.physics.arcade.collide(player, platforms);
 		game.physics.arcade.collide(player, walls, null, function(){ return wallCollision}); //Collision detection for walls, added like so so player can slide in from offscreen.
 
 
@@ -1695,15 +1708,6 @@ function fadeOut(delay, duration, newGameState){
 
     	game.time.events.add(Phaser.Timer.SECOND * (delay+duration), function() { blackout.destroy();});
         // game.add.tween(blackout).to({ alpha: 1 }, 2000, "Linear", true);
-}
-
-function landingSound(player)
-{
-	if (!landed)
-	{
-		groundImpact.play();
-		landed = true;
-	}
 }
 // STATES -----------------------------------------------------------------------------------------------
 
