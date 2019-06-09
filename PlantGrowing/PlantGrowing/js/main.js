@@ -170,27 +170,37 @@ MainMenu.prototype = {
 		game.world.setBounds(0, 0, game.width, game.height);
 		
 		//Adds instruction text
-		var text = game.add.text(game.world.centerX, 150, 'OverGrown', { fontSize: '64px', fill: '#000'});
+		var text = game.add.text(game.world.centerX, 150, 'OverGrown', { fontSize: '64px', fill: '#fff'});
 		text.addColor('#fff', 0);
 		text.anchor.set(0.5);
 
-		button = game.add.button(game.world.centerX, 350, 'platform', function(){fadeOut(1, 1, 'Tutorial');}, this, 2, 1, 0);
-		button.anchor.set(0.5);
-		button.scale.y = 2;
-		var text = game.add.text(game.world.centerX, 350, 'Play', { fontSize: '32px', fill: '#000' });
-		text.anchor.set(0.5);
+		var button1 = game.add.button(game.world.centerX, 350, 'platform', function(){fadeOut(1, 1, 'Tutorial');}, this, 2, 1, 0);
+		button1.anchor.set(0.5);
+		button1.scale.y = 2;
+
+		var text1 = game.add.text(game.world.centerX, 350, 'Play', { fontSize: '32px', fill: '#000' });
+		text1.anchor.set(0.5);
+		button1.onInputOver.add(function(){button1.scale.x = 1.15; text1.addColor('#f3f38c', 0);}, this);
+		button1.onInputOut.add(function(){button1.scale.x = 1; text1.addColor('#000', 0);}, this);
+    	button1.onInputUp.add(function(){button1.scale.x = 1.15; text1.addColor('#fff', 0);}, this);
 		
-		button = game.add.button(game.world.centerX, 450, 'platform', function(){fadeOut(1, 1, 'GamePlay');}, this, 2, 1, 0);
-		button.anchor.set(0.5);
-		button.scale.y = 2;
-		var text = game.add.text(game.world.centerX, 450, 'Controls', { fontSize: '32px', fill: '#000' });
-		text.anchor.set(0.5);
+		var button2 = game.add.button(game.world.centerX, 450, 'platform', function(){fadeOut(1, 1, 'Controls');}, this, 2, 1, 0);
+		button2.anchor.set(0.5);
+		button2.scale.y = 2;
+		var text2 = game.add.text(game.world.centerX, 450, 'Controls', { fontSize: '32px', fill: '#000' });
+		text2.anchor.set(0.5);
+		button2.onInputOver.add(function(){button2.scale.x = 1.15; text2.addColor('#f3f38c', 0);}, this);
+		button2.onInputOut.add(function(){button2.scale.x = 1; text2.addColor('#000', 0);}, this);
+    	button2.onInputUp.add(function(){button2.scale.x = 1.15; text2.addColor('#fff', 0);}, this);
 		
-		button = game.add.button(game.world.centerX, 550, 'platform', function(){fadeOut(1, 1, 'GamePlay');}, this, 2, 1, 0);
-		button.anchor.set(0.5);
-		button.scale.y = 2;
-		var text = game.add.text(game.world.centerX, 550, 'Credits', { fontSize: '32px', fill: '#000' });
-		text.anchor.set(0.5);
+		var button3 = game.add.button(game.world.centerX, 550, 'platform', function(){fadeOut(1, 1, 'Credits');}, this, 2, 1, 0);
+		button3.anchor.set(0.5);
+		button3.scale.y = 2;
+		var text3 = game.add.text(game.world.centerX, 550, 'Credits', { fontSize: '32px', fill: '#000' });
+		text3.anchor.set(0.5);
+		button3.onInputOver.add(function(){button3.scale.x = 1.15; text3.addColor('#f3f38c', 0);}, this);
+		button3.onInputOut.add(function(){button3.scale.x = 1; text3.addColor('#000', 0);}, this);
+    	button3.onInputUp.add(function(){button3.scale.x = 1.15; text3.addColor('#fff', 0);}, this);
 		
 
 		// //Adds instruction text
@@ -247,7 +257,7 @@ Tutorial.prototype = {
 	create: function(){
 		//sets game background color to navy blue
 		game.stage.backgroundColor = "#235347"; 
-		game.stage.backgroundColor = "#fff"; 
+		//game.stage.backgroundColor = "#fff"; 
 		
 		//enable arcade physics
 		game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -255,8 +265,8 @@ Tutorial.prototype = {
 		//Set game world size to double the viewable area of the game
 		game.world.setBounds(0, 0, game.width*7, game.height*2);
 
-		//var tutfarground = game.add.sprite(0, 0, 'tutfarground');
-		//var tutbforeground = game.add.sprite(0, 0, 'tutbforeground');
+		var tutfarground = game.add.sprite(0, 0, 'tutfarground');
+		var tutbforeground = game.add.sprite(0, 0, 'tutbforeground');
 		// var tutforeground = game.add.sprite(0, 0, 'tutforeground');
 
 		//leaf background stuff
@@ -299,10 +309,10 @@ Tutorial.prototype = {
 		game.add.text(4260, game.world.height - 480	, 'Sometimes plant nodes are out of view.', { fontSize: '22px', fill: '#f3f38c' });
 		game.add.text(4260, game.world.height - 450	, 'You will need to grow while peeking to', { fontSize: '22px', fill: '#f3f38c' });
 		game.add.text(4260, game.world.height - 420	, 'use the plant node in the upper right!', { fontSize: '22px', fill: '#f3f38c' });
-		game.add.text(5600, game.world.height - 875	, 'Good job, now heres one last trick!', { fontSize: '22px', fill: '#f3f38c' });
-		game.add.text(5600, game.world.height - 825	, 'You can stand on something else, reset', { fontSize: '22px', fill: '#f3f38c' });
-		game.add.text(5600, game.world.height - 800	, 'a plant, and grow it in another direction', { fontSize: '22px', fill: '#f3f38c' });
-		game.add.text(5600, game.world.height - 775	, 'to progress! Try with the offscreen plant!', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(5500, game.world.height - 875	, 'Good job, now heres one last trick!', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(5500, game.world.height - 825	, 'You can stand on something else, reset', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(5500, game.world.height - 800	, 'a plant, and grow it in another direction', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(5500, game.world.height - 775	, 'to progress! Try with the offscreen plant!', { fontSize: '22px', fill: '#f3f38c' });
 		game.add.text(6750, game.world.height - 800, 'Good luck!', { fontSize: '22px', fill: '#f3f38c' });
 		
 		//makes the player object and adds it to its group
@@ -379,11 +389,14 @@ Tutorial.prototype = {
 		createLedge(6850, game.world.height - 532, 'platform', 1, 100);
 
 		//var tutforeground = game.add.sprite(0, 0, 'tutforeground');
+		//var tutplatforms = game.add.sprite(0, 0, 'tutplatforms');
+		var tutfloor = game.add.sprite(0, 0, 'tutfloor');
+		var plantlights = game.add.sprite(0, 0, 'tutplantlocations');
 
 		//Create the plants in positions modeled after the paper prototype(some modifications)
 		//addLightPulse(3550, game.world.height - 516);
 		createPlant(3600, game.world.height - 400);
-		createPlant(4795, game.world.height - 690);
+		createPlant(4810, game.world.height - 690);
 		createPlant(6220, game.world.height - 490);
 
 		//temp sprite to make it look like a pit at the botom of the screen
@@ -403,10 +416,6 @@ Tutorial.prototype = {
 		var exit = exits.create(7000, 1000, 'exit');
 		exit.body.immovable = true;
 		exit.anchor.set(0.5);
-
-		//var tutplatforms = game.add.sprite(0, 0, 'tutplatforms');
-		//var plantlocations = game.add.sprite(0, 0, 'tutplantlocations');
-		//var tutfloor = game.add.sprite(0, -192, 'tutfloor');
 
 		// //Tutorial Text
 		// var text = game.add.text(132, game.world.height-164, '(Left) A', { fontSize: '20px', fill: '#fff' });
@@ -994,8 +1003,8 @@ GamePlay.prototype = {
 var GameOver = function(game) {};
 GameOver.prototype = {
 	create: function(){
-		cameraReset();
-		game.world.setBounds(0, 0, game.width, game.height);
+		//cameraReset();
+		game.world.setBounds(0, 0, 1000, 800);
 		//sets main menu background color to a warm red
 		game.stage.backgroundColor = "#cd5c5c";
 
@@ -1018,7 +1027,66 @@ GameOver.prototype = {
 }
 
 // GAME OVER STATE END -----------------------------------------------------------------------------------------------
+// CONTROLS STATE -----------------------------------------------------------------------------------------------
 
+//Game over state
+var Controls = function(game) {};
+Controls.prototype = {
+	create: function(){
+		//cameraReset();
+		game.world.setBounds(0, 0, 1000, 800);
+		//sets main menu background color to a warm red
+		game.stage.backgroundColor = "#cd5c5c";
+
+		//cameraReset();
+		
+		//victory and instruction text
+		game.add.text(16, 16, 'Controls', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 68, 'Press space to restart.', { fontSize: '32px', fill: '#000' });
+		
+	},
+
+	update: function(){
+
+		if(spaceKey.isDown){
+				game.state.start('MainMenu', true, false, 0); //Starts the gameplay state if space is held down/pressed
+		}
+	
+	}
+
+}
+
+// GAME OVER STATE END -----------------------------------------------------------------------------------------------
+// CREDITS STATE -----------------------------------------------------------------------------------------------
+
+//Game over state
+var Credits = function(game) {};
+Credits.prototype = {
+	create: function(){
+		//cameraReset();
+		game.world.setBounds(0, 0, 1000, 800);
+		//sets main menu background color to a warm red
+		game.stage.backgroundColor = "#cd5c5c";
+
+		//cameraReset();
+		
+		//victory and instruction text
+		game.add.text(16, 16, 'Credits', { fontSize: '32px', fill: '#000' });
+		game.add.text(16, 68, 'Press space to restart.', { fontSize: '32px', fill: '#000' });
+		
+	},
+
+	update: function(){
+
+		if(spaceKey.isDown){
+				game.state.start('MainMenu', true, false, 0); //Starts the gameplay state if space is held down/pressed
+		}
+	
+	}
+
+}
+
+// GAME OVER STATE END -----------------------------------------------------------------------------------------------
 
 
 //Global Functions (Might be made local later if only 1 large level is made)
@@ -1076,9 +1144,9 @@ function identifyPlantGroup(plantGroup){
 		    plantEmitter.makeParticles('particle');
 
 		    plantEmitter.setRotation(0, 0);
-		    plantEmitter.maxParticleScale = 0.23;
-		    plantEmitter.minParticleScale = 0.10;
-		    plantEmitter.setAlpha(0.1,0.45);
+		    plantEmitter.maxParticleScale = 0.35;
+		    plantEmitter.minParticleScale = 0.15;
+		    plantEmitter.setAlpha(0.15,0.45);
 		    plantEmitter.tint = 0xFFFF00;
 		    plantEmitter.gravity = -120;
 
@@ -1440,4 +1508,6 @@ game.state.add('MainMenu', MainMenu);
 game.state.add('GamePlay', GamePlay);
 game.state.add('GameOver', GameOver);
 game.state.add('Tutorial', Tutorial);
+game.state.add('Controls', Controls);
+game.state.add('Credits', Credits);
 game.state.start('MainMenu');
