@@ -124,6 +124,8 @@ MainMenu.prototype = {
 		game.load.image('lightfade', 'lightfade.png');
 		game.load.image('blackout', 'blackout.png');
 		game.load.image('eyes', 'eyes.png');
+		game.load.image('creditfloor', 'creditfloor.png');
+		game.load.image('credittree', 'credittree.png');
 
 		//first level
 		game.load.image('plantlights', 'plantlights.png');
@@ -167,40 +169,62 @@ MainMenu.prototype = {
 	create: function(){
 		//sets main menu background color to forestgreen
 		game.stage.backgroundColor = "#081f1f";
-		game.world.setBounds(0, 0, game.width, game.height);
+		game.world.setBounds(0, 0, 1000, 800);
+
+		//leaf background stuff
+	    var back_emitter = game.add.emitter(game.world.centerX, -32, 500);
+    	back_emitter.makeParticles(['leaf2']);
+	    back_emitter.maxParticleScale = 0.35;
+	    back_emitter.minParticleScale = 0.15;
+	    back_emitter.maxParticleAlpha = 0.75;
+	    back_emitter.minParticleAlpha = 0.5;
+	    back_emitter.setYSpeed(20, 100);
+	    back_emitter.gravity = 0;
+	    back_emitter.width = game.world.width * 1.25;
+	    back_emitter.minRotation = 0;
+	    back_emitter.maxRotation = 40;
+
+	    //  This will emit a quantity of 1 particle every 450ms. Each particle will live for 30000ms.
+	    back_emitter.start(false, 30000, 450);
+
+		var tree = game.add.sprite(game.world.centerX-220, game.world.centerY, 'credittree');
+		tree.anchor.set(0.5);
+		tree.scale.x = 0.75;
+		tree.scale.y = 0.75;
 		
 		//Adds instruction text
-		var text = game.add.text(game.world.centerX, 150, 'OverGrown', { fontSize: '64px', fill: '#fff'});
+		var text = game.add.text(game.world.centerX, 250, '~ Flourish ~', { fontSize: '128px', fill: '#fff'});
 		text.addColor('#fff', 0);
 		text.anchor.set(0.5);
 
-		var button1 = game.add.button(game.world.centerX, 350, 'platform', function(){fadeOut(1, 1, 'Tutorial');}, this, 2, 1, 0);
+		var button1 = game.add.button(game.world.centerX, game.world.centerY+100, 'platform', function(){fadeOut(1, 1, 'Tutorial');}, this, 2, 1, 0);
 		button1.anchor.set(0.5);
 		button1.scale.y = 2;
-
-		var text1 = game.add.text(game.world.centerX, 350, 'Play', { fontSize: '32px', fill: '#000' });
+		var text1 = game.add.text(game.world.centerX, game.world.centerY+100, 'Play', { fontSize: '32px', fill: '#000' });
 		text1.anchor.set(0.5);
 		button1.onInputOver.add(function(){button1.scale.x = 1.15; text1.addColor('#f3f38c', 0);}, this);
 		button1.onInputOut.add(function(){button1.scale.x = 1; text1.addColor('#000', 0);}, this);
     	button1.onInputUp.add(function(){button1.scale.x = 1.15; text1.addColor('#fff', 0);}, this);
 		
-		var button2 = game.add.button(game.world.centerX, 450, 'platform', function(){fadeOut(1, 1, 'Controls');}, this, 2, 1, 0);
-		button2.anchor.set(0.5);
-		button2.scale.y = 2;
-		var text2 = game.add.text(game.world.centerX, 450, 'Controls', { fontSize: '32px', fill: '#000' });
-		text2.anchor.set(0.5);
-		button2.onInputOver.add(function(){button2.scale.x = 1.15; text2.addColor('#f3f38c', 0);}, this);
-		button2.onInputOut.add(function(){button2.scale.x = 1; text2.addColor('#000', 0);}, this);
-    	button2.onInputUp.add(function(){button2.scale.x = 1.15; text2.addColor('#fff', 0);}, this);
+		// var button2 = game.add.button(game.world.centerX, 450, 'platform', function(){fadeOut(1, 1, 'Controls');}, this, 2, 1, 0);
+		// button2.anchor.set(0.5);
+		// button2.scale.y = 2;
+		// var text2 = game.add.text(game.world.centerX, 450, 'Controls', { fontSize: '32px', fill: '#000' });
+		// text2.anchor.set(0.5);
+		// button2.onInputOver.add(function(){button2.scale.x = 1.15; text2.addColor('#f3f38c', 0);}, this);
+		// button2.onInputOut.add(function(){button2.scale.x = 1; text2.addColor('#000', 0);}, this);
+  //   	button2.onInputUp.add(function(){button2.scale.x = 1.15; text2.addColor('#fff', 0);}, this);
 		
-		var button3 = game.add.button(game.world.centerX, 550, 'platform', function(){fadeOut(1, 1, 'Credits');}, this, 2, 1, 0);
+		var button3 = game.add.button(game.world.centerX+400, 750, 'platform', function(){fadeOut(1, 1, 'Credits');}, this, 2, 1, 0);
 		button3.anchor.set(0.5);
 		button3.scale.y = 2;
-		var text3 = game.add.text(game.world.centerX, 550, 'Credits', { fontSize: '32px', fill: '#000' });
+		button3.alpha = 0;
+		var text3 = game.add.text(game.world.centerX+400, 750, 'Credits', { fontSize: '32px', fill: '#fff' });
 		text3.anchor.set(0.5);
+		text3.alpha = 0.1;
 		button3.onInputOver.add(function(){button3.scale.x = 1.15; text3.addColor('#f3f38c', 0);}, this);
-		button3.onInputOut.add(function(){button3.scale.x = 1; text3.addColor('#000', 0);}, this);
-    	button3.onInputUp.add(function(){button3.scale.x = 1.15; text3.addColor('#fff', 0);}, this);
+		button3.onInputOut.add(function(){button3.scale.x = 1; text3.addColor('#fff', 0);}, this);
+    	button3.onInputUp.add(function(){button3.scale.x = 1.15; text3.addColor('#000', 0);}, this);
 		
 
 		// //Adds instruction text
@@ -235,6 +259,8 @@ MainMenu.prototype = {
 		// var text = game.add.text(16, 678, 'Try to make it to the platform on the other side!', { fontSize: '32px', fill: '#000' });
 		// var text = game.add.text(16, 718, 'Press "SPACE" to start', { fontSize: '32px', fill: '#000' });
 		// text.addColor('#fff', 0);
+
+		fadeIn(1.25, 1.5);
 	},
 
 	update: function() {
@@ -770,7 +796,7 @@ GamePlay.prototype = {
 		// 	//cameraMoving = false;
 		// });
 
-		fadeIn(1, 1);
+		fadeIn(1.25, 1.5);
 
 	},
 
@@ -999,23 +1025,82 @@ var GameOver = function(game) {};
 GameOver.prototype = {
 	create: function(){
 		cameraReset();
+		
 		game.world.setBounds(0, 0, 1000, 800);
 		//sets main menu background color to a warm red
-		game.stage.backgroundColor = "#cd5c5c";
-		exitReached = false;
+		game.stage.backgroundColor = "#235347";
+
+		//leaf background stuff
+	    var back_emitter = game.add.emitter(game.world.centerX, -32, 500);
+    	back_emitter.makeParticles(['leaf2']);
+	    back_emitter.maxParticleScale = 0.35;
+	    back_emitter.minParticleScale = 0.15;
+	    back_emitter.maxParticleAlpha = 0.75;
+	    back_emitter.minParticleAlpha = 0.5;
+	    back_emitter.setYSpeed(20, 100);
+	    back_emitter.gravity = 0;
+	    back_emitter.width = game.world.width * 1.25;
+	    back_emitter.minRotation = 0;
+	    back_emitter.maxRotation = 40;
+
+	    back_emitter.start(false, 30000, 450);
+
+		var tree = game.add.sprite(game.world.centerX-220, game.world.centerY, 'credittree');
+		tree.anchor.set(0.5);
+		tree.scale.x = 0.75;
+		tree.scale.y = 0.75;
+
+		players = game.add.group();
+		players.enableBody = true;
+		//player = players.create(60, game.world.height-189, 'player');
+		player = players.create(game.world.centerX, game.world.centerY, 'lightMode');
+		player.anchor.set(0.5);
+		player.body.bounce.y = .02;
+		//player.body.gravity.y = 200;
+		player.body.maxVelocity = 0;
+		player.body.syncBounds = true;
+
+		//player eyes
+		pEyes = game.add.sprite(player.x-14, player.y+4, 'eyes');
+		pEyes.anchor.set(0.5);
+
+		//creating the pulse behind the player then in light mode
+		plight = game.add.sprite(player.x, player.y, 'lightfade');
+		plight.anchor.set(0.5);
+		plight.alpha = 0.0;
+		plight.moveDown();
+
+		blink = game.add.tween(plight).to( { alpha: 0.45 }, 1500, Phaser.Easing.Linear.None, true, 0, 1500, true);
+			//blink.pause();
+		blinkScale = game.add.tween(plight.scale).to( { x: 2.5, y: 2.5 }, 1500, Phaser.Easing.Linear.None, true, 0, 1500, true);
+
+		var floor = game.add.sprite(game.world.centerX+200, game.world.centerY+220, 'creditfloor');
+		floor.anchor.set(0.5);
+		floor.scale.x = 3;
+		floor.scale.y = 3;
 
 		//cameraReset();
-		
 		//victory and instruction text
-		game.add.text(16, 16, 'You did it!', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 68, 'Press space to restart.', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(game.world.centerX, 64, 'Thanks for Playing!', { fontSize: '64px', fill: '#fff' });
+		text.anchor.set(0.5);
+		//victory and instruction text
+		var text = game.add.text(16, 466, 'Made By:', { fontSize: '24px', fill: '#f3f38c' });
+		var text = game.add.text(16, 518, '- Anthony Diaz, Alain Kassarjian, and David Magnusson', { fontSize: '24px', fill: '#fff' });
+		var text = game.add.text(16, 570, 'Special Thanks to:', { fontSize: '24px', fill: '#f3f38c' });
+		var text = game.add.text(16, 610, '- Varick, for game conception and other various contributions', { fontSize: '24px', fill: '#fff' });
+		var text = game.add.text(16, 660, '- Elizabeth and Nathan, for being wonderful and great Professors!', { fontSize: '24px', fill: '#fff' });
+		var text = game.add.text(16, 710, 'And all the wonderful TAs for 120 in 2019', { fontSize: '24px', fill: '#fff' });
+		var text = game.add.text(700, 750, '[SPACEBAR] Main Menu', { fontSize: '24px', fill: '#f3f38c' });
+		text.addColor('#fff', 10);
+
+		fadeIn(1.25, 1.5);
 		
 	},
 
 	update: function(){
 
 		if(spaceKey.isDown){
-				game.state.start('MainMenu', true, false, 0); //Starts the gameplay state if space is held down/pressed
+				fadeOut(1.25,1.5,"MainMenu"); //Starts the gameplay state if space is held down/pressed
 		}
 	
 	}
@@ -1030,9 +1115,11 @@ var Controls = function(game) {};
 Controls.prototype = {
 	create: function(){
 		//cameraReset();
+		//fadeIn(1,1);
+
 		game.world.setBounds(0, 0, 1000, 800);
 		//sets main menu background color to a warm red
-		game.stage.backgroundColor = "#cd5c5c";
+		game.stage.backgroundColor = "#081f1f";
 
 		//cameraReset();
 		
@@ -1060,27 +1147,84 @@ var Credits = function(game) {};
 Credits.prototype = {
 	create: function(){
 		//cameraReset();
+
+		//fadeIn(1,1);
+
 		game.world.setBounds(0, 0, 1000, 800);
 		//sets main menu background color to a warm red
-		game.stage.backgroundColor = "#cd5c5c";
+		game.stage.backgroundColor = "#235347";
+
+		//leaf background stuff
+	    var back_emitter = game.add.emitter(game.world.centerX, -32, 500);
+    	back_emitter.makeParticles(['leaf2']);
+	    back_emitter.maxParticleScale = 0.35;
+	    back_emitter.minParticleScale = 0.15;
+	    back_emitter.maxParticleAlpha = 0.75;
+	    back_emitter.minParticleAlpha = 0.5;
+	    back_emitter.setYSpeed(20, 100);
+	    back_emitter.gravity = 0;
+	    back_emitter.width = game.world.width * 1.25;
+	    back_emitter.minRotation = 0;
+	    back_emitter.maxRotation = 40;
+
+	    back_emitter.start(false, 30000, 450);
+
+		var tree = game.add.sprite(game.world.centerX-220, game.world.centerY, 'credittree');
+		tree.anchor.set(0.5);
+		tree.scale.x = 0.75;
+		tree.scale.y = 0.75;
+
+		players = game.add.group();
+		players.enableBody = true;
+		//player = players.create(60, game.world.height-189, 'player');
+		player = players.create(game.world.centerX, game.world.centerY, 'lightMode');
+		player.anchor.set(0.5);
+		player.body.bounce.y = .02;
+		//player.body.gravity.y = 200;
+		player.body.maxVelocity = 0;
+		player.body.syncBounds = true;
+
+		//player eyes
+		pEyes = game.add.sprite(player.x-14, player.y+4, 'eyes');
+		pEyes.anchor.set(0.5);
+
+		//creating the pulse behind the player then in light mode
+		plight = game.add.sprite(player.x, player.y, 'lightfade');
+		plight.anchor.set(0.5);
+		plight.alpha = 0.0;
+		plight.moveDown();
+
+		blink = game.add.tween(plight).to( { alpha: 0.45 }, 1500, Phaser.Easing.Linear.None, true, 0, 1500, true);
+			//blink.pause();
+		blinkScale = game.add.tween(plight.scale).to( { x: 2.5, y: 2.5 }, 1500, Phaser.Easing.Linear.None, true, 0, 1500, true);
+
+		var floor = game.add.sprite(game.world.centerX+200, game.world.centerY+220, 'creditfloor');
+		floor.anchor.set(0.5);
+		floor.scale.x = 3;
+		floor.scale.y = 3;
 
 		//cameraReset();
-		
 		//victory and instruction text
-		game.add.text(16, 16, 'Credits:', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 68, 'Made by: Anthony Diaz, Alain Kassarjian, and David Magnusson', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 120, 'Special Thanks to:', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 160, 'Varick, for game conception and other various contributions', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 200, 'Elizabeth and Nathan, for being wonderful and great Professors!', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 240, 'And all the wonderful TAs for 120 in 2019', { fontSize: '32px', fill: '#000' });
-		game.add.text(16, 308, 'Press space to return to Main Menu.', { fontSize: '32px', fill: '#000' });
+		var text = game.add.text(game.world.centerX, 64, 'Thanks for Playing!', { fontSize: '64px', fill: '#fff' });
+		text.anchor.set(0.5);
+		//victory and instruction text
+		var text = game.add.text(16, 466, 'Made By:', { fontSize: '24px', fill: '#f3f38c' });
+		var text = game.add.text(16, 518, '- Anthony Diaz, Alain Kassarjian, and David Magnusson', { fontSize: '24px', fill: '#fff' });
+		var text = game.add.text(16, 570, 'Special Thanks to:', { fontSize: '24px', fill: '#f3f38c' });
+		var text = game.add.text(16, 610, '- Varick, for game conception and other various contributions', { fontSize: '24px', fill: '#fff' });
+		var text = game.add.text(16, 660, '- Elizabeth and Nathan, for being wonderful and great Professors!', { fontSize: '24px', fill: '#fff' });
+		var text = game.add.text(16, 710, 'And all the wonderful TAs for 120 in 2019', { fontSize: '24px', fill: '#fff' });
+		var text = game.add.text(700, 750, '[SPACEBAR] Main Menu', { fontSize: '24px', fill: '#f3f38c' });
+		text.addColor('#fff', 10);
+
+		fadeIn(1.25, 1.5);
 		
 	},
 
 	update: function(){
 
 		if(spaceKey.isDown){
-				game.state.start('MainMenu', true, false, 0); //Starts the gameplay state if space is held down/pressed
+				fadeOut(1.25,1.5,"MainMenu"); //Starts the gameplay state if space is held down/pressed
 		}
 	
 	}
