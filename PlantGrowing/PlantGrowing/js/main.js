@@ -275,6 +275,36 @@ Tutorial.prototype = {
 	    //  This will emit a quantity of 1 particle every 450ms. Each particle will live for 30000ms.
 	    back_emitter.start(false, 30000, 450);
 		
+		//Tutorial Text
+		game.add.text(32, game.world.height - 600, 'Use W,A,S,D to move', { fontSize: '32px', fill: '#f3f38c' });
+		game.add.text(32, game.world.height - 500, 'Use the W arrow to jump! (Hold for slow fall)', { fontSize: '32px', fill: '#f3f38c' });
+		game.add.text(1150, game.world.height - 600, 'You can peek the camera to view things a bit away!', { fontSize: '32px', fill: '#f3f38c' });
+		game.add.text(1150, game.world.height - 500, 'Press space to switch forms to root yourself and stop moving', { fontSize: '32px', fill: '#f3f38c' });
+		game.add.text(1150, game.world.height - 400, 'While rooted, Use the WASD keys to peek the camera', { fontSize: '32px', fill: '#f3f38c' });
+		game.add.text(2100, game.world.height - 600, 'Jump off the edge and hold the jump', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(2100, game.world.height - 550, 'key to slow fall to this platform!', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(3260, game.world.height - 600, 'While in the rooted form,', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3260, game.world.height - 575, 'you can grow plants!', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3260, game.world.height - 525, 'Click and drag on glowing plant nodes', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3260, game.world.height - 500, 'to grow plant platforms! Only one can be', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3260, game.world.height - 475, 'grown at a time per node, and once created', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3260, game.world.height - 450, 'the platform is always grown from its end.', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3260, game.world.height - 400, '(If you mess up, press R to reset the', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3260, game.world.height - 375, 'currently selected plant. You can', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3260, game.world.height - 350, 'select a plant by clicking any', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3260, game.world.height - 325, 'part of it.)', { fontSize: '16px', fill: '#f3f38c' });
+		game.add.text(3800, game.world.height - 580	, 'Each plant platform does have a', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(3800, game.world.height - 550	, 'maximum length, shown when the', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(3800, game.world.height - 520	, 'end of it becomes yellow.', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(4260, game.world.height - 480	, 'Sometimes plant nodes are out of view.', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(4260, game.world.height - 450	, 'You will need to grow while peeking to', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(4260, game.world.height - 420	, 'use the plant node in the upper right!', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(5600, game.world.height - 875	, 'Good job, now heres one last trick!', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(5600, game.world.height - 825	, 'You can stand on something else, reset', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(5600, game.world.height - 800	, 'a plant, and grow it in another direction', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(5600, game.world.height - 775	, 'to progress! Try with the offscreen plant!', { fontSize: '22px', fill: '#f3f38c' });
+		game.add.text(6750, game.world.height - 800, 'Good luck!', { fontSize: '22px', fill: '#f3f38c' });
+		
 		//makes the player object and adds it to its group
 		//adds bounce to the player
 		//sets player gravity
@@ -366,39 +396,12 @@ Tutorial.prototype = {
 		walls.enableBody = true;
 		createWall(-32, -game.world.height/2, 'box', 1, 75, 0);
 		createWall(game.world.width+1, -game.world.height/2, 'box', 1, 75, 0);
-
-		//creates the walls as a passage block (seen on screen)
-		//createWall(600, game.world.height-221, 'box', 1, 4);
-		//createWall(1032, game.world.height-317, 'box', 1, 4);
-
-		//Tutorial Text
-		game.add.text(32, game.world.height - 600, 'Use W,A,S,D to move', { fontSize: '32px', fill: '#f3f38c' });
-		game.add.text(32, game.world.height - 500, 'Use the W arrow to jump! (Hold for slow fall)', { fontSize: '32px', fill: '#f3f38c' });
-		game.add.text(1150, game.world.height - 600, 'You can peek the camera to view things a bit away!', { fontSize: '32px', fill: '#f3f38c' });
-		game.add.text(1150, game.world.height - 500, 'Press space to switch forms to root yourself and stop moving', { fontSize: '32px', fill: '#f3f38c' });
-		game.add.text(1150, game.world.height - 400, 'While rooted, Use the WASD keys to peek the camera', { fontSize: '32px', fill: '#f3f38c' });
-		game.add.text(2100, game.world.height - 600, 'Jump off the edge and hold the jump', { fontSize: '22px', fill: '#f3f38c' });
-		game.add.text(2100, game.world.height - 550, 'key to slow fall to this platform!', { fontSize: '22px', fill: '#f3f38c' });
-		game.add.text(3300, game.world.height - 400, 'While in the rooted form,', { fontSize: '16px', fill: '#f3f38c' });
-		game.add.text(3300, game.world.height - 375, 'you can grow plants!', { fontSize: '16px', fill: '#f3f38c' });
-		game.add.text(3300, game.world.height - 325, 'Click and drag on glowing plant nodes', { fontSize: '16px', fill: '#f3f38c' });
-		game.add.text(3300, game.world.height - 300, 'to grow plant platforms!', { fontSize: '16px', fill: '#f3f38c' });
-		game.add.text(3300, game.world.height - 225, '(If you mess up, press R to reset the last', { fontSize: '16px', fill: '#f3f38c' });
-		game.add.text(3300, game.world.height - 200, 'clicked plant)', { fontSize: '16px', fill: '#f3f38c' });
-		//game.add.text(3300, game.world.height - 150, '(Unfortunately, roots cannot be stood on as', { fontSize: '16px', fill: '#f3f38c' });
-		//game.add.text(3300, game.world.height - 125, 'they are too fragile', { fontSize: '16px', fill: '#f3f38c' });
-		game.add.text(4340, game.world.height - 480	, 'You can grow a plant, reset it (R), and', { fontSize: '22px', fill: '#f3f38c' });
-		game.add.text(4340, game.world.height - 450	, 'grow it another way to progress!', { fontSize: '22px', fill: '#f3f38c' });
-		game.add.text(4340, game.world.height - 420	, 'Try it now!', { fontSize: '22px', fill: '#f3f38c' });
-		game.add.text(5800, game.world.height - 800	, 'Good job, now heres one last trick!', { fontSize: '22px', fill: '#f3f38c' });
-		game.add.text(5800, game.world.height - 750	, 'While peeking with the Camera, you can grow plants you see!', { fontSize: '22px', fill: '#f3f38c' });
-		game.add.text(6750, game.world.height - 800, 'Good luck!', { fontSize: '22px', fill: '#f3f38c' });
 		
 		//adds exit door at the end of the level to trigger GameOver
 		exits = game.add.group();
 		exits.enableBody = true;
 		var exit = exits.create(7000, 1000, 'exit');
-		exits.immovable = true;
+		exit.body.immovable = true;
 		exit.anchor.set(0.5);
 
 		//var tutplatforms = game.add.sprite(0, 0, 'tutplatforms');
@@ -681,7 +684,7 @@ GamePlay.prototype = {
 		exits = game.add.group();
 		exits.enableBody = true;
 		var exit = exits.create(game.world.width - 10, 210, 'exit');
-		//exit.immovable = true;
+		exit.body.immovable = true;
 		exit.alpha=(0.1);
 		exit.anchor.set(0.5);
 
