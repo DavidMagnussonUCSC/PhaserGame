@@ -998,10 +998,11 @@ GamePlay.prototype = {
 var GameOver = function(game) {};
 GameOver.prototype = {
 	create: function(){
-		//cameraReset();
+		cameraReset();
 		game.world.setBounds(0, 0, 1000, 800);
 		//sets main menu background color to a warm red
 		game.stage.backgroundColor = "#cd5c5c";
+		exitReached = false;
 
 		//cameraReset();
 		
