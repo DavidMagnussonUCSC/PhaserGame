@@ -284,6 +284,7 @@ var Tutorial = function(game) {};
 Tutorial.prototype = {
 	
 	create: function(){
+		
 		//sets game background color to navy blue
 		game.stage.backgroundColor = "#235347"; 
 		//game.stage.backgroundColor = "#fff"; 
@@ -408,15 +409,15 @@ Tutorial.prototype = {
 
 		//ambient background noises
 		ambientSound = game.add.audio('backgroundSound');
-		ambientSound.volume = 0.15;
+		ambientSound.volume = 0.16;
 
 		//sound played when entering light mode
 		lightModeSoundOn = game.add.audio('lightModeSoundOn');
-		lightModeSoundOn.volume = 0.25;
+		lightModeSoundOn.volume = 0.1;
 
 		//sound played when exiting light mode
 		lightModeSoundOff = game.add.audio('lightModeSoundOff');
-		lightModeSoundOff.volume = 0.125;
+		lightModeSoundOff.volume = 0.0625;
 
 		//Adds platforms Group and enables physics for them
 		platforms = game.add.group();
@@ -468,7 +469,7 @@ Tutorial.prototype = {
 		exits = game.add.group();
 		exits.enableBody = true;
 		var exit = exits.create(7000, 1000, 'exit');
-		exit.body.immovable = true;
+		exit.alpha = 0;
 		exit.anchor.set(0.5);
 
 		// //Tutorial Text
@@ -505,7 +506,12 @@ Tutorial.prototype = {
 		plight.x = player.x;
 		plight.y = player.y;
 
-		pEyes.x = player.x;
+		if(wallCollision == false){
+			pEyes.x = (player.x+14);	
+		}
+		else{
+			pEyes.x = player.x;
+		}
 		pEyes.y = (player.y+4);
 
 		//collision detection for player and plants
@@ -513,7 +519,7 @@ Tutorial.prototype = {
 		//collision detection for walls and exits
 		game.physics.arcade.collide(player, plantMatter, plantSound);
 		game.physics.arcade.collide(player, platforms);
-		game.physics.arcade.collide(player, walls, null, wallCollision);
+		game.physics.arcade.collide(player, walls, null, function(){ return wallCollision});
 
 		//play ambient noises at random intervals
 		if (Math.random() < 0.001)
@@ -651,6 +657,10 @@ Tutorial.prototype = {
 		//Goes to game over screen if exit is reached
 		if(game.physics.arcade.collide(player, exits))
 		{
+			game.physics.arcade.moveToXY(player, player.body.x + 120, player.body.y, 60, 2000);//player tutorial exit animation
+			wallCollision = false;
+			cameraMoving = true;
+			lightMode = true;
 			game.time.events.add(500, function() {fadeOut(1, 1, 'GamePlay');});
 			game.time.events.add(1500, function() {songLoop.destroy();});
 		}
@@ -786,7 +796,7 @@ GamePlay.prototype = {
 		exits.enableBody = true;
 		var exit = exits.create(game.world.width - 10, 210, 'exit');
 		exit.body.immovable = true;
-		exit.alpha=(0.1);
+		exit.alpha= 0 ;
 		exit.anchor.set(0.5);
 
 		//temp sprite to make it look like a pit at the botom of the screen
