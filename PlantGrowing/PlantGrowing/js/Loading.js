@@ -5,7 +5,6 @@ var Loading = {
 	
 	preload: function() 
 	{
-		
 		//image setup/assets
 		game.load.path = 'assets/img/';
 		game.load.image('box', 'Box1.png');

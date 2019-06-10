@@ -36,11 +36,11 @@ Tutorial.prototype = {
 	    back_emitter.start(false, 30000, 450);
 		
 		//Tutorial Text
-		game.add.text(32, game.world.height - 600, 'Use W,A,S,D to move', { fontSize: '32px', fill: '#f3f38c' });
-		game.add.text(32, game.world.height - 500, 'Use the W arrow to jump! (Hold for slow fall)', { fontSize: '32px', fill: '#f3f38c' });
-		game.add.text(1150, game.world.height - 600, 'You can peek the camera to view things a bit away!', { fontSize: '32px', fill: '#f3f38c' });
-		game.add.text(1150, game.world.height - 500, 'Press space to switch forms to root yourself and stop moving', { fontSize: '32px', fill: '#f3f38c' });
-		game.add.text(1150, game.world.height - 400, 'While rooted, Use the WASD keys to peek the camera', { fontSize: '32px', fill: '#f3f38c' });
+		game.add.text(32, game.world.height - 500, 'Use W,A,S,D to move', { fontSize: '24px', fill: '#f3f38c' });
+		game.add.text(32, game.world.height - 450, 'Use the W arrow to jump! (Hold for slow fall)', { fontSize: '24px', fill: '#f3f38c' });
+		game.add.text(1150, game.world.height - 600, 'You can peek the camera to view things a bit away!', { fontSize: '24px', fill: '#f3f38c' });
+		game.add.text(1150, game.world.height - 550, 'Press space to switch forms to root yourself and stop moving', { fontSize: '24px', fill: '#f3f38c' });
+		game.add.text(1150, game.world.height - 500, 'While rooted, Use the WASD keys to peek the camera', { fontSize: '24px', fill: '#f3f38c' });
 		game.add.text(2100, game.world.height - 600, 'Jump off the edge and hold the jump', { fontSize: '22px', fill: '#f3f38c' });
 		game.add.text(2100, game.world.height - 550, 'key to slow fall to this platform!', { fontSize: '22px', fill: '#f3f38c' });
 		game.add.text(3260, game.world.height - 600, 'While in the rooted form,', { fontSize: '16px', fill: '#f3f38c' });
@@ -130,7 +130,7 @@ Tutorial.prototype = {
 
 		//ambient background noises
 		ambientSound = game.add.audio('backgroundSound');
-		ambientSound.volume = 0.16;
+		ambientSound.volume = 0.14;
 
 		//sound played when entering light mode
 		lightModeSoundOn = game.add.audio('lightModeSoundOn');
@@ -381,7 +381,7 @@ Tutorial.prototype = {
 		}
 
 		//used for debugging purposes
-		//render();
+		//srender();
 	}
 }
 

@@ -97,9 +97,6 @@ var wallCollision = true;
 //Variable for regulating player eye position
 var pEyes;
 
-//Variable for checking if exit is reached for gameOver transition purposes
-var exitReached = false;
-
 //Global Functions
 
 //creates a plant group and adds 

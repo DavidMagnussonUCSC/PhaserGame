@@ -4,7 +4,6 @@ var MainMenu = function(game) {};
 MainMenu.prototype = {
 	
 	preload: function() {
-
 		//setup for advanced timing (ex. fps debug)
 		game.time.advancedTiming = true;
 

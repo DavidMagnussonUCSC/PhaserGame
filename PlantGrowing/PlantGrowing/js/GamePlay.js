@@ -3,6 +3,9 @@ var GamePlay = function(game) {};
 GamePlay.prototype = {
 	
 	create: function(){
+		//Variable for checking if exit is reached for gameOver transition purposes
+		var exitReached = false;
+		
 		//Turns off wall collision for entry animation
 		wallCollision = false;
 
@@ -110,7 +113,7 @@ GamePlay.prototype = {
 
 		//ambient background noises
 		ambientSound = game.add.audio('backgroundSound');
-		ambientSound.volume = 0.16;
+		ambientSound.volume = 0.14;
 
 		//sound played when entering light mode
 		lightModeSoundOn = game.add.audio('lightModeSoundOn');
